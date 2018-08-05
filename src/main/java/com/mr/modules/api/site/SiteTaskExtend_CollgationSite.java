@@ -46,32 +46,32 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
     protected String executeOne() throws Throwable {
         return super.executeOne();
     }
-    
+
     @Override
-	protected String getData(String url) {
-    	try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return CrawlerUtil.getHtmlPage(url);
-	}
-    
-	/**
-	 * 获取页面数据
-	 * @param wc
-	 * @param url
-	 * @return
-	 */
-	protected String getData(WebClient wc, String url) {
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return CrawlerUtil.getHtmlPage(wc, url);
-	}
-    
+    protected String getData(String url) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return CrawlerUtil.getHtmlPage(url);
+    }
+
+    /**
+     * 获取页面数据
+     * @param wc
+     * @param url
+     * @return
+     */
+    protected String getData(WebClient wc, String url) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return CrawlerUtil.getHtmlPage(wc, url);
+    }
+
     /**
      * 创建一个htmlUnit webClient 客户端
      * @param ip
@@ -126,7 +126,7 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
      * @param waitTime
      * @return
      */
-	public static String getHtmlPage(String url, int waitTime) {
+    public static String getHtmlPage(String url, int waitTime) {
         if(waitTime<0){
             waitTime = 1000;
         }
@@ -179,7 +179,7 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-        	wc.close();
+            wc.close();
         }
         return null;
     }
@@ -250,7 +250,7 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-        	wc.close();
+            wc.close();
         }
         return null;
     }
