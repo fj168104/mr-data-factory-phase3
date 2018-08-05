@@ -21,7 +21,7 @@ create table `scrapy_data`(
 ##备注：
 1、用于存储爬起的各个站点相关信息。
 
-2、hash_kay用户存储目前站点网页的相关信息的路径，最后一级目录就是由目标地址url通过md5加密获取，倒数第二级目录为类所在的包名称。
+2、hash_kay用户存储目前站点网页的源文件html,附件文档等的相关信息的路径，最后一级目录就是由目标地址url通过md5加密获取，倒数第二级目录为类所在的包名称。文件名统一为标题名称
 
 具体案例如：F:/home/fengjiang/Documents\mofcomsite\624301ffdbb80df309f3ac2c746484f3
 
