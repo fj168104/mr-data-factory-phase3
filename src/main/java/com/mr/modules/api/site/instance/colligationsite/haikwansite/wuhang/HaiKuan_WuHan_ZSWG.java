@@ -1,4 +1,4 @@
-package com.mr.modules.api.site.instance.colligationsite.haikwansite.guiyang;
+package com.mr.modules.api.site.instance.colligationsite.haikwansite.wuhang;
 
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
 import lombok.extern.slf4j.Slf4j;
@@ -8,22 +8,22 @@ import org.springframework.stereotype.Component;
 /**
  * @Auter zjxu
  * @DateTime 2018-08-05
- * 主题：贵阳海关知识产权行政处罚
- * url:http://guiyang.customs.gov.cn/guiyang_customs/549798/549819/549821/549822/index.html
+ * 主题：武汉海关走私违规行政处罚
+ * url:http://wuhan.customs.gov.cn/wuhan_customs/506378/506396/506398/506400/index.html
  * 属性：企业名称, 执行文号, 处罚事由, 处罚依据, 处罚结果, 认定机关, 发布日期
  */
 @Slf4j
 @Scope("prototype")
-@Component("haikuan_guiyang_zscq")
-public class HaiKuan_GuiYang_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
+@Component("haikuan_wuhan_zswg")
+public class HaiKuan_WuHan_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
     @Override
     protected String execute() throws Throwable {
         String ip = "";
         String port = "";
-        String source = "贵阳海关知识产权行政处罚";
-        String area = "guiyang";//区域为：贵阳
-        String baseUrl = "http://guiyang.customs.gov.cn";
-        String url = "http://guiyang.customs.gov.cn/guiyang_customs/549798/549819/549821/549822/index.html";
+        String source = "武汉海关走私违规行政处罚";
+        String area = "wuhan";//区域为：武汉
+        String baseUrl = "http://wuhan.customs.gov.cn";
+        String url = "http://wuhan.customs.gov.cn/wuhan_customs/506378/506396/506398/506400/index.html";
         webContext(baseUrl,url,ip,port,source,area);
         return null;
     }
