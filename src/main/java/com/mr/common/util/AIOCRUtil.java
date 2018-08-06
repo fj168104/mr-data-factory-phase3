@@ -38,8 +38,6 @@ public class AIOCRUtil {
      * @return 返回单个图片识别结果内容
      */
     public static String getTextFromImageUrl(String url) {
-        System.out.println("====" + taipAppId);
-        System.out.println("====" + taipAppKey);
         return getTextFromImageUrl(createTengXunAipOcrClient(), url);
     }
 
