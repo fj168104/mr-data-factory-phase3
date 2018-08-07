@@ -1,24 +1,20 @@
 package com.mr.modules.api.site.instance.creditchinasite.gansusite;
 
-import java.util.Date;
-import java.util.regex.Pattern;
-
+import com.mr.common.util.CrawlerUtil;
+import com.mr.framework.core.util.StrUtil;
+import com.mr.modules.api.model.DiscreditBlacklist;
+import com.mr.modules.api.site.SiteTaskExtend_CreditChina;
+import com.mr.modules.api.site.instance.creditchinasite.CreditChinaSite;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.mr.common.util.CrawlerUtil;
-import com.mr.framework.core.util.StrUtil;
-import com.mr.modules.api.mapper.DiscreditBlacklistMapper;
-import com.mr.modules.api.model.DiscreditBlacklist;
-import com.mr.modules.api.site.SiteTaskExtend_CreditChina;
-import com.mr.modules.api.site.instance.creditchinasite.CreditChinaSite;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * 信用中国（甘肃）-庆阳市2017年第一期诚信“黑榜”
