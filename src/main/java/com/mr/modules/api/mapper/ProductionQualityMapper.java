@@ -3,8 +3,6 @@ package com.mr.modules.api.mapper;
 import com.mr.common.base.mapper.BaseMapper;
 import com.mr.modules.api.model.ProductionQuality;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.Date;
 import java.util.List;
 
 public interface ProductionQualityMapper extends BaseMapper<ProductionQuality> {
@@ -29,7 +27,7 @@ public interface ProductionQualityMapper extends BaseMapper<ProductionQuality> {
      * @param publishDate        发布时间
      * @return
      */
-    List<ProductionQuality> selectByUrl(@Param("url") String url , @Param("enterpriseName") String enterpriseName , @Param("publishDate") Date publishDate);
+    List<ProductionQuality> selectByUrl(@Param("url") String url , @Param("enterpriseName") String enterpriseName , @Param("publishDate") String publishDate);
 
     /**
      * 判断记录此url地址是否已经存在
@@ -38,5 +36,5 @@ public interface ProductionQualityMapper extends BaseMapper<ProductionQuality> {
      * @param publishDate
      * @return
      */
-    int deleteByUrl(@Param("url") String url , @Param("enterpriseName") String enterpriseName , @Param("publishDate") Date publishDate);
+    int deleteByUrl(@Param("url") String url , @Param("enterpriseName") String enterpriseName , @Param("publishDate") String publishDate);
 }
