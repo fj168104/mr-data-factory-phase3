@@ -90,6 +90,14 @@ proxydatabase:
   dburl: jdbc:mysql://47.100.7.81:3306/data_factory_xu?useUnicode=true&characterEncoding=utf-8&useSSL=false&autoReconnect=true&allowMultiQueries=true
   dbuser: root
   dbpassword: Root@1234
+
+#OCR配置
+ocr:
+  #腾讯AI开放平台
+  taip:
+    app_id: 2107602349
+    app_key: ft510AJ3xrB5pfK9
+
 ---
 
 #开发环境配置

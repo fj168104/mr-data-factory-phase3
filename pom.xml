@@ -299,6 +299,13 @@
             <version>RELEASE</version>
         </dependency>
 
+        <!--腾讯AI开放平台SDK-->
+        <dependency>
+            <groupId>cn.xsshome</groupId>
+            <artifactId>taip</artifactId>
+            <version>4.3.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
