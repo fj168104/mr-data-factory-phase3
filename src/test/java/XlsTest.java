@@ -1,5 +1,12 @@
 
 import com.google.common.collect.Lists;
+import com.mr.framework.core.collection.CollectionUtil;
+import com.mr.framework.core.lang.Console;
+import com.mr.framework.poi.excel.ExcelReader;
+import com.mr.framework.poi.excel.ExcelUtil;
+import com.mr.framework.poi.excel.sax.Excel03SaxReader;
+import com.mr.framework.poi.excel.sax.Excel07SaxReader;
+import com.mr.framework.poi.excel.sax.handler.RowHandler;
 import com.mr.modules.api.xls.export.ExportConfigFactory;
 import com.mr.modules.api.xls.export.FileExportor;
 import com.mr.modules.api.xls.export.domain.common.ExportCell;
@@ -13,15 +20,11 @@ import com.mr.modules.api.xls.importfile.domain.MapResult;
 import com.mr.modules.api.xls.importfile.domain.common.Configuration;
 import com.mr.modules.api.xls.importfile.domain.common.ImportCell;
 import com.mr.modules.api.xls.importfile.exception.FileImportException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import jxl.Sheet;
+import jxl.read.biff.BiffException;
+import jxl.write.WritableWorkbook;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,15 +34,16 @@ import java.util.*;
  * Created by fengj on 2018/3/23.
  */
 public class XlsTest {
-	public static void main(String[] args) throws FileImportException, FileNotFoundException, FileExportException, URISyntaxException {
+	public static void main(String[] args) throws Exception {
 
 //		testImport();
 //        URL u = Test.class.getResource("import/config.xml");
 //        System.out.println(u.toString());
-		testImportConfig();
+//		testImportConfig();
 //		testImportByNoConfig();
+		testExcelRead();
+//		test03Excel();
 	}
-
 
 
 	/**
@@ -86,11 +90,11 @@ public class XlsTest {
 		try {
 			configuration.setStartRowNo(1);
 			List<ImportCell> importCells = Lists.newArrayList(
-					new ImportCell(0 ,"index"),
+					new ImportCell(0, "index"),
 					new ImportCell(1, "float"),
 					new ImportCell(2, "string"),
 					new ImportCell(3, "date"),
-					new ImportCell(4,"bigdecimal")
+					new ImportCell(4, "bigdecimal")
 			);
 			configuration.setImportCells(importCells);
 			configuration.setImportFileType(Configuration.ImportFileType.EXCEL);
@@ -100,8 +104,8 @@ public class XlsTest {
 			for (Map<String, Object> map : maps) {
 				Object index = map.get("index");
 				Object f1 = map.get("float");
-				Object string =map.get("string");
-				Object date =  map.get("date");
+				Object string = map.get("string");
+				Object date = map.get("date");
 				Object bigDecimal = map.get("bigdecimal");
 				System.out.println("index :" + index + " f1 : " + f1 + " string : " + string
 						+ " date : " + date + " bigdecimal : " + bigDecimal.toString());
@@ -185,5 +189,44 @@ public class XlsTest {
 //        } catch (IOException e) {
 //            throw new FileExportException(" exportFile " + e.getMessage());
 //        }
+	}
+
+
+	public static void testExcelRead() {
+		List<List<Object>> allList = new LinkedList<>();
+		Excel07SaxReader reader = new Excel07SaxReader(createRowHandler(allList));
+		reader.read("/home/fengjiang/Downloads/W020171206390644388295.xlsx", 0);
+		Console.log(allList.get(10));
+
+	}
+
+	private static RowHandler createRowHandler(final List<List<Object>> allList) {
+		return new RowHandler() {
+			@Override
+			public void handle(int sheetIndex, int rowIndex, List<Object> rowlist) {
+				Console.log("[{}] [{}] {}", rowlist.size(), rowIndex, rowlist);
+				List<Object> newRowlist = new ArrayList<Object>(rowlist);
+
+				allList.add(newRowlist);
+			}
+		};
+	}
+
+	public static void test03Excel() throws Exception {
+		Console.log("*********88");
+		jxl.Workbook book = jxl.Workbook.getWorkbook(new File("/home/fengjiang/Documents/W020180403628062321524.xls"));
+		//获得第一个工作表对象
+//		Sheet sheet = book.getSheet("sheet_one");
+		Sheet sheet = book.getSheet(0);
+		int rows = sheet.getRows();
+		int cols = sheet.getColumns();
+		int i = 0;
+		int j = 0;
+		for (i = 0; i < cols; i++) {
+			for (j = 0; j < rows; j++) {
+				System.out.println("第" + j + "行，第" + i + "列为：" + sheet.getCell(i, j).getContents());
+			}
+		}
+
 	}
 }

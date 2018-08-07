@@ -17,7 +17,7 @@
     <result column="oper_production" property="operProduction" jdbcType="VARCHAR" />
     <result column="oper_result" property="operResult" jdbcType="VARCHAR" />
     <result column="oper_org" property="operOrg" jdbcType="VARCHAR" />
-    <result column="publish_date" property="publishDate" jdbcType="DATE" />
+    <result column="publish_date" property="publishDate" jdbcType="VARCHAR" />
   </resultMap>
   <!--通过业务主键删除-->
   <delete id="deleteAllByUrl" parameterType="java.lang.String">
