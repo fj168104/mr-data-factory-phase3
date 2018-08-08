@@ -90,9 +90,9 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 				Elements aElements = document.getElementsByClass("con-r").first().getElementsByTag("a");
 				//页面中list解析
 				for (int j = 0; j < aElements.size(); j++) {
-					String publishDate = liElements.get(i).text().trim();
-					String dUrl = nextUrl + aElements.get(i).attr("href").trim().substring(1);
-					String title = aElements.get(i).text();
+					String publishDate = liElements.get(j).text().trim();
+					String dUrl = nextUrl + aElements.get(j).attr("href").trim().substring(1);
+					String title = aElements.get(j).text();
 					log.info("dUrl:{}", dUrl);
 					//进入明细页面
 					String detailstr = getData(dUrl);
@@ -141,56 +141,64 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 											+ fileName);
 								}
 								//解析excel
-								for (int k = 1; ; k++) {
+								int n = 0;
+								Map<String, Integer> kMap = Maps.newHashMap();
+								outer:
+								for (int k = 1; k < allList.size(); k++) {
 									Object value1 = allList.get(k).get(0);
 									if (Objects.isNull(value1)) break;
 
 									Object value2 = allList.get(k).get(1);
 									if (String.valueOf(value1).trim().equals("序号") && String.valueOf(value2).trim().equals("标称生产企业名称")) {
 										//获取参与取值的列index
-										Map<String, Integer> kMap = Maps.newHashMap();
-										for (int m = 0; ; m++) {
-											String label = String.valueOf(allList.get(k).get(k)).trim();
-											if (StrUtil.isEmpty(label)) break;
+										n = k + 1;
+										for (int m = 0; m < allList.get(k).size(); m++) {
+											String label = String.valueOf(allList.get(k).get(m)).trim();
+											if (StrUtil.isEmpty(label)) {
+												break outer;
+											}
 											if (label.equals("标称生产企业名称")) kMap.put("enterprise_name", m);
 											if (label.equals("食品名称") || label.contains("样品名称"))
 												kMap.put("oper_production", m);
 											if (label.contains("检验结果")) kMap.put("oper_result", m);
 											if (label.contains("检验机构")) kMap.put("oper_org", m);
 										}
-
-										for (int n = k + 1; ; n++) {
-											String seq = String.valueOf(allList.get(n).get(0)).trim();
-											if (StrUtil.isEmpty(seq)) break;
-											ProductionQuality productionQuality = new ProductionQuality();
-											productionQuality.setUrl(href);
-											productionQuality.setCreatedAt(new Date());
-											if (Objects.nonNull(kMap.get("enterprise_name"))) {
-												productionQuality.setEnterpriseName(String.valueOf(
-														allList.get(n).get(kMap.get("enterprise_name")))
-														.trim());
-											}
-											if (Objects.nonNull(kMap.get("oper_production"))) {
-												productionQuality.setOperProduction(String.valueOf(
-														allList.get(n).get(kMap.get("oper_production")))
-														.trim());
-											}
-											if (Objects.nonNull(kMap.get("oper_result"))) {
-												productionQuality.setOperResult(String.valueOf(
-														allList.get(n).get(kMap.get("oper_result")))
-														.trim());
-											}
-											if (Objects.nonNull(kMap.get("oper_org"))) {
-												productionQuality.setOperOrg(String.valueOf(
-														allList.get(n).get(kMap.get("oper_org")))
-														.trim());
-											}
-
-											productionQuality.setPublishDate(publishDate);
-											saveProductionQualityOne(productionQuality, false);
-										}
 									}
 								}
+
+								for (; n < allList.size(); n++) {
+									String seq = String.valueOf(allList.get(n).get(0)).trim();
+									if (StrUtil.isEmpty(seq)) break;
+									ProductionQuality productionQuality = new ProductionQuality();
+									productionQuality.setUrl(href);
+									productionQuality.setCreatedAt(new Date());
+									if (Objects.nonNull(kMap.get("enterprise_name"))) {
+										productionQuality.setEnterpriseName(String.valueOf(
+												allList.get(n).get(kMap.get("enterprise_name")))
+												.trim());
+									}
+									if (Objects.nonNull(kMap.get("oper_production"))) {
+										productionQuality.setOperProduction(String.valueOf(
+												allList.get(n).get(kMap.get("oper_production")))
+												.trim());
+									}
+									if (Objects.nonNull(kMap.get("oper_result"))) {
+										productionQuality.setOperResult(String.valueOf(
+												allList.get(n).get(kMap.get("oper_result")))
+												.trim());
+									}
+									if (Objects.nonNull(kMap.get("oper_org"))) {
+										productionQuality.setOperOrg(String.valueOf(
+												allList.get(n).get(kMap.get("oper_org")))
+												.trim());
+									}
+
+									productionQuality.setPublishDate(publishDate);
+									productionQuality.setSource(source);
+									saveProductionQualityOne(productionQuality, false);
+								}
+
+
 							}
 						}
 					} catch (Throwable ex) {
@@ -246,8 +254,6 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 		for (int j = 0; j < rows; j++) {
 			List<Object> newRowlist = new ArrayList<Object>();
 			for (int i = 0; i < cols; i++) {
-				log.info("第" + j + "行，第" + i + "列为：" + sheet.getCell(i, j).getContents());
-
 				newRowlist.add(sheet.getCell(i, j).getContents());
 			}
 			allList.add(newRowlist);
