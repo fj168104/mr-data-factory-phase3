@@ -45,7 +45,7 @@ public class BONU_LiaoNing extends SiteTaskExtend_CollgationSite {
             String publishDate = spanTag.getTextContent();
             String href = aTag.getAttribute("href");
             href= href.substring(href.indexOf(".")+2);
-            String reqUrl = "http://www.ln.stats.gov.cn/tjfw/tjsxqygs/sxqyxx/"+href;
+            String reqUrl = mainUrl+href;
             HtmlPage page = webClient.getPage(reqUrl);
             List contentDivList = page.getByXPath("//*[@id=\"ContTextSize\"]/div/div");
         //    System.out.println(contentDivList.get(0));
