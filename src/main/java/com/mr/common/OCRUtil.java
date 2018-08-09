@@ -91,7 +91,43 @@ public class OCRUtil {
 		return bodyText;
 	}
 
+	/**
+	 * @param filePath
+	 * @Title: getTextFromDoc
+	 * @Description: 读取doc文本内容
+	 * @return: 读出的doc的内容
+	 * 注：自定义路径
+	 */
+	public String getTextFromDocAutoFilePath(String filePath,String fileName) throws Exception {
+		String entirePath = filePath+File.separator+fileName;
+		InputStream in = new FileInputStream(entirePath);
+		String bodyText = "";
+		try {
+			//转换成  PushbackinputStream
+			if (!in.markSupported()) {
+				in = new PushbackInputStream(in, 8);
+			}
+			//其他word版本
+			if (POIFSFileSystem.hasPOIFSHeader(in)) {
+				HWPFDocument document = new HWPFDocument(in);
+				WordExtractor extractor = new WordExtractor(document);
+				bodyText = extractor.getText();
+			} else {
+				//07 版本
+				XWPFDocument document = new XWPFDocument(in);
+				XWPFWordExtractor extractor = new XWPFWordExtractor(document);
+				bodyText = extractor.getText();
+				System.out.println(bodyText);
+			}
 
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+		} finally {
+			FileUtil.del(entirePath);
+		}
+
+		return bodyText;
+	}
 	/**
 	 * 解析的dirName下的所有图片
 	 * dirName  目录名 = 下载的文件所在目录 + 文件名

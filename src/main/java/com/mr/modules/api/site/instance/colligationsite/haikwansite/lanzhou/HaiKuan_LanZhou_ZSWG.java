@@ -1,7 +1,9 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.lanzhou;
 
+import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 @Component("haikuan_lanzhou_zswg")
 public class HaiKuan_LanZhou_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
+    @Autowired
+    SiteParams siteParams;
     @Override
     protected String execute() throws Throwable {
         String ip = "";
@@ -24,7 +28,11 @@ public class HaiKuan_LanZhou_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
         String area = "lanzhou";//区域为：兰州
         String baseUrl = "http://lanzhou.customs.gov.cn";
         String url = "http://lanzhou.customs.gov.cn/lanzhou_customs/553124/553146/553148/553149/index.html";
-        webContext(baseUrl,url,ip,port,source,area);
+        String increaseFlag = siteParams.map.get("increaseFlag");
+        if(increaseFlag==null){
+            increaseFlag = "";
+        }
+        webContext(increaseFlag,baseUrl,url,ip,port,source,area);
         return null;
     }
 

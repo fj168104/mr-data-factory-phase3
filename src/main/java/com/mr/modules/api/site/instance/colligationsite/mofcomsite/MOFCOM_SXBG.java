@@ -178,6 +178,7 @@ public class MOFCOM_SXBG extends SiteTaskExtend_CollgationSite{
                                 imageSrc.asXml();
                         scrapyData.setHtml(Jsoup.parse(textHtml).html());
                         scrapyData.setText("　　发布主题："+urlTitle+"　　\n发布时间："+publishDate+"\n"+imageSrc.asText());
+                        scrapyData.setAttachmentType("");
                         scrapyData.setFields(fields);
                         if(imageSrc!=null){
 

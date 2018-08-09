@@ -1,9 +1,14 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.haerbin;
 
+import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Auter zjxu
@@ -16,6 +21,8 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 @Component("haikuan_haerbin_zswg")
 public class HaiKuan_HaErBin_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
+    @Autowired
+    SiteParams siteParams;
     @Override
     protected String execute() throws Throwable {
         String ip = "";
@@ -24,7 +31,11 @@ public class HaiKuan_HaErBin_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
         String area = "harbin";//区域为：哈尔滨
         String baseUrl = "http://harbin.customs.gov.cn";
         String url = "http://harbin.customs.gov.cn/harbin_customs/467898/467921/467923/467925/554b8d78-1.html";
-        webContext(baseUrl,url,ip,port,source,area);
+        String increaseFlag = siteParams.map.get("increaseFlag");
+        if(increaseFlag==null){
+            increaseFlag = "";
+        }
+        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
         return null;
     }
 
