@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @auterh zjxu
@@ -33,8 +30,9 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
     /**
      * 提取正文
      */
-    public void webContext(String baseUrl,String url,String ip,String port,String source,String area) {
-
+    public List<Map<String,String>> webContext(String increaseFlag,String baseUrl,String url,String ip,String port,String source,String area) {
+        //用户存储，filePath，fileName，attachmentType(附件类型),publishDate
+        List<Map<String,String>> listMap = new ArrayList<>();
         //获取页数
         WebClient webClient = null;
 
@@ -42,7 +40,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
             webClient = createWebClient("", "");
             HtmlPage htmlPage = webClient.getPage(url);
             //获取主题列表
-            parseListPage(htmlPage, ip, port, baseUrl, source,area);
+            listMap = parseListPage(increaseFlag,htmlPage, ip, port, baseUrl, source,area);
             //进行目标详情页面解析
 
             //进行翻页操作
@@ -54,6 +52,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         } finally {
             webClient.close();
         }
+        return listMap;
     }
     /**
      * 解析主题清单网页
@@ -61,7 +60,13 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
      * @param ip
      * @param port
      */
-    public void parseListPage(HtmlPage htmlPage, String ip, String port,String baseUrl,String source,String area){
+    public  List<Map<String,String>> parseListPage(String increaseFlag,HtmlPage htmlPage, String ip, String port,String baseUrl,String source,String area){
+        //原文非附件的文本类容
+        String text = "";
+        //是否要继续执行翻页,:false需要翻页，true：不翻页
+        boolean nextPageFlag = true;
+        //用于存储，filePath，fileName，attachmentType(附件类型)，publishDate
+        List<Map<String,String>> listMap = new ArrayList<>();
         //获取总页数
         nextPagesize = nextPagesize+1;
 
@@ -75,6 +80,8 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 for(HtmlElement htmlElementList : htmlElements){
                     List<HtmlElement> htmlElementLiList = htmlElementList.getElementsByTagName("li");
                     for(HtmlElement htmlElementLi : htmlElementLiList){
+                        //创建Map，用于存储需要返回的对象属性
+                        Map<String ,String > mapAttr = new HashMap<>();
                         //获取详情连接
                         HtmlElement htmlElementA = htmlElementLi.getElementsByTagName("a").get(0);
                         String detailUrl = baseUrl+htmlElementA.getAttribute("href");
@@ -82,6 +89,10 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         //获取发布时间
                         String publishDate = htmlElementLi.getElementsByTagName("span").get(0).asText();
                         log.info("detailUrl:{}\ntitleName:{}\npublishDate:{}",detailUrl,titleName,publishDate);
+                        //创建路径
+                        String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);                   //打开附件
+                        //附件类型名称
+                        String attachmentName = "";
                         //操作详情界面
                         WebClient webClientDetail = null;
                         try {
@@ -93,12 +104,11 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                                 //3.创建存储对象
                                 ScrapyData scrapyData = new ScrapyData();
                                 String[] attachmentTypeStr = htmlElementA.getAttribute("href").split("\\.");
-                                String attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
-                                //创建路径
-                                String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);                   //打开附件
+                                String attachmentType = attachmentTypeStr[attachmentTypeStr.length-1];
                                 Page page = htmlElementA.click();
                                 //下载附件
-                                saveFile(page,titleName+"."+attachmentType,hashKeyFilePath);
+                                attachmentName = titleName+"."+attachmentType;
+                                saveFile(page,attachmentName,hashKeyFilePath);
                                 //准备入库操作
                                 scrapyData.setHtml("");
                                 scrapyData.setText("");
@@ -109,28 +119,45 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                                 scrapyData.setAttachmentType(attachmentType);
                                 scrapyData.setHashKey(hashKeyFilePath);
                                 //入库
-                                saveScrapyDataOne(scrapyData,false);
+                                nextPageFlag = saveScrapyDataOne(scrapyData,false);
+
                             }else{/*清单列表不是直接附件*/
                                 HtmlPage htmlPageDetail = webClientDetail.getPage(detailUrl);
-                                parseDetailPage(htmlPageDetail,detailUrl,titleName,publishDate,source,area);
+                                Map map = parseDetailPage(htmlPageDetail,detailUrl,titleName,publishDate,source,area);
+                                attachmentName  = map.get("attachmentName").toString();
+                                nextPageFlag = (boolean)map.get("nextPageFlag");
+                                text = map.get("text").toString();
+                            }
+                            if(nextPageFlag&&increaseFlag.equals("add")){
+                                break;
                             }
 
                         } catch (IOException ioe){
-
+                            log.error("网页处理IO异常···"+ioe.getMessage());
                         }catch (Throwable throwable) {
-                            throwable.printStackTrace();
+                            log.error("未分类异常···"+throwable.getMessage());
                         }finally {
                             webClientDetail.close();
                         }
+                        mapAttr.put("text",text);
+                        mapAttr.put("sourceUrl",detailUrl);
+                        mapAttr.put("publishDate",publishDate);
+                        mapAttr.put("attachmentName",attachmentName);
+                        mapAttr.put("filePath",hashKeyFilePath);
+                        listMap.add(mapAttr);
                     }
 
                 }
             }
-            //递归操作下一页
-            htmlPage = nextPage(htmlPage,ip, port,baseUrl);
-            parseListPage(htmlPage,ip,port,baseUrl,source,area);
+            //递归操作下一页,nextPageFlag = false 执行翻页
+            if("all".equals(increaseFlag)||"".equals(increaseFlag)||("add".equals(increaseFlag)&&nextPageFlag==false)){
+                htmlPage = nextPage(htmlPage,ip, port,baseUrl);
+                if(htmlPage != null){
+                    parseListPage(increaseFlag,htmlPage,ip,port,baseUrl,source,area);
+                }
+            }
         }
-
+        return listMap;
     }
 
     /**
@@ -166,14 +193,20 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
      * @param titleName
      * @param publishDate
      */
-    public void parseDetailPage(HtmlPage htmlPage,String detailUrl,String titleName,String publishDate,String source,String area){
+    public Map parseDetailPage(HtmlPage htmlPage,String detailUrl,String titleName,String publishDate,String source,String area){
+        //原文非附件的文本
+        String text  = "";
+        //用于存储，attachmentName（附件名称），nextPageFlag（翻页标识）
+        Map<String,Object> map = new HashMap();
+        boolean nextPageFlag = true;
+        String attachmentName = "";
         List<HtmlElement> htmlElements = htmlPage.getByXPath("//div[@class='easysite-news-text']");
         if(htmlElements.size()>0){
             HtmlElement htmlElement = htmlElements.get(0);
             //1.获取详情子页面
             Document htmlTextDoc = Jsoup.parse("<p>发布主题："+titleName+"</p>"+"<p>发布时间："+publishDate+"</p>"+htmlElement.asXml());
             String htmlText = htmlTextDoc.html();
-            String text  = htmlTextDoc.text();
+            text  = htmlTextDoc.text();
             //2.获取附件所在的标签
             List<HtmlElement> htmlElementAList = htmlElement.getElementsByTagName("a");
             List<HtmlElement> htmlElementImgList = htmlElement.getElementsByTagName("img");
@@ -190,7 +223,8 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         saveFile(htmlPage,titleName+".html",hashKeyFilePath);
                         Page page = htmlElementImg.click();
                         //下载附件
-                        saveFile(page,titleName+"."+attachmentType,hashKeyFilePath);
+                        attachmentName = titleName+"."+attachmentType;
+                        saveFile(page,attachmentName,hashKeyFilePath);
                         //准备入库操作
                         scrapyData.setHtml(htmlText);
                         scrapyData.setText(text);
@@ -201,7 +235,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         scrapyData.setAttachmentType(attachmentType);
                         scrapyData.setHashKey(hashKeyFilePath);
                         //入库
-                        saveScrapyDataOne(scrapyData,false);
+                        nextPageFlag = saveScrapyDataOne(scrapyData,false);
                     } catch (IOException e) {
                         log.error("下载附件出现异常，请查验···"+e.getMessage());
                     }catch (Exception e){
@@ -219,7 +253,8 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         saveFile(htmlPage,titleName+".html",hashKeyFilePath);
                         Page page = htmlElementA.click();
                         //下载附件
-                        saveFile(page,titleName+"."+attachmentType,hashKeyFilePath);
+                        attachmentName = titleName+"."+attachmentType;
+                        saveFile(page,attachmentName,hashKeyFilePath);
                         //准备入库操作
                         scrapyData.setHtml(htmlText);
                         scrapyData.setText(text);
@@ -230,7 +265,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         scrapyData.setAttachmentType(attachmentType);
                         scrapyData.setHashKey(hashKeyFilePath);
                         //入库
-                        saveScrapyDataOne(scrapyData,false);
+                        nextPageFlag = saveScrapyDataOne(scrapyData,false);
                     } catch (IOException e) {
                         log.error("下载附件出现异常，请查验···"+e.getMessage());
                     }catch (Exception e){
@@ -252,8 +287,12 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 scrapyData.setAttachmentType("");
                 scrapyData.setHashKey(hashKeyFilePath);
                 //入库
-                saveScrapyDataOne(scrapyData,false);
+                nextPageFlag = saveScrapyDataOne(scrapyData,false);
             }
         }
+        map.put("text",text);
+        map.put("attachmentName",attachmentName);
+        map.put("nextPageFlag",nextPageFlag);
+        return map;
     }
 }

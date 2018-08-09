@@ -55,6 +55,10 @@ public class SiteController extends BaseController {
 				String keyWord =request.getParameter("keyWord");
 				mapParams.put("keyWord", keyWord);
 			}
+			if(request.getQueryString().contains("increaseFlag=")){//全量与增量标识
+				String increaseFlag =request.getParameter("increaseFlag");
+				mapParams.put("increaseFlag", increaseFlag);
+			}
 			SiteParams.map = mapParams;
 			code = siteService.start(indexId, callId);
 		}

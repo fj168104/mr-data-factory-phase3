@@ -1,9 +1,14 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.shijiazhuang;
 
+import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Auter zjxu
@@ -16,6 +21,8 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 @Component("haikuan_shijiazhuang_zscq")
 public class HaiKuan_ShiJiaZhuang_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
+    @Autowired
+    SiteParams siteParams;
     @Override
     protected String execute() throws Throwable {
         String ip = "";
@@ -24,7 +31,11 @@ public class HaiKuan_ShiJiaZhuang_ZSCQ extends SiteTaskExtend_CollgationSite_Hai
         String area = "shijiazhuang";//区域为：石家庄
         String baseUrl = "http://shijiazhuang.customs.gov.cn";
         String url = "http://shijiazhuang.customs.gov.cn/shijiazhuang_customs/456977/457003/457005/457006/index.html";
-        webContext(baseUrl,url,ip,port,source,area);
+        String increaseFlag = siteParams.map.get("increaseFlag");
+        if(increaseFlag==null){
+            increaseFlag = "";
+        }
+        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
         return null;
     }
 
