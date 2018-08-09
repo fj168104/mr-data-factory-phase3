@@ -93,10 +93,18 @@ proxydatabase:
 
 #OCR配置
 ocr:
+  #OCR文件的下载目录
+  download_dir: F:/home/ocr/
   #腾讯AI开放平台
   taip:
     app_id: 2107602349
     app_key: ft510AJ3xrB5pfK9
+  #百度云
+  baip:
+    app_id: 11641746
+    app_key: amGikVFG3DMxS70DorUNUlvR
+    secret_key: 1Ze4bta22sW70V5bvlexbnB8b5kbNXqG
+
 
 ---
 
