@@ -138,6 +138,10 @@ public class AdminPunish extends BaseEntity {
     private String publishDate;
 
     /**
+     * 状态
+     */
+    private String status;
+    /**
      * @return id
      */
     /*public Integer getId() {
@@ -526,4 +530,12 @@ public class AdminPunish extends BaseEntity {
 	public void setEnterpriseCode4(String enterpriseCode4) {
 		this.enterpriseCode4 = enterpriseCode4;
 	}
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
