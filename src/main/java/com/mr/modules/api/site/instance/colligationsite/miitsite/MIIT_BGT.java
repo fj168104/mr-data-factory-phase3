@@ -2,6 +2,7 @@ package com.mr.modules.api.site.instance.colligationsite.miitsite;
 
 import com.google.common.collect.Maps;
 import com.mr.common.OCRUtil;
+import com.mr.framework.core.collection.CollectionUtil;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.Console;
 import com.mr.framework.core.util.StrUtil;
@@ -149,15 +150,18 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 									if (Objects.isNull(value1)) break;
 
 									Object value2 = allList.get(k).get(1);
-									if (String.valueOf(value1).trim().equals("序号") && String.valueOf(value2).trim().equals("标称生产企业名称")) {
+									if (String.valueOf(value1).trim().equals("序号") && String.valueOf(value2).trim().replaceAll("\\s*", "").equals("标称生产企业名称")) {
 										//获取参与取值的列index
-										n = k + 1;
+										if (n == 0) {
+											n = k + 1;
+										}
+
 										for (int m = 0; m < allList.get(k).size(); m++) {
-											String label = String.valueOf(allList.get(k).get(m)).trim();
+											String label = String.valueOf(allList.get(k).get(m)).trim().replaceAll("\\s*", "");
 											if (StrUtil.isEmpty(label)) {
 												break outer;
 											}
-											if (label.equals("标称生产企业名称")) kMap.put("enterprise_name", m);
+											if (label.equals("被抽样单位名称")) kMap.put("enterprise_name", m);
 											if (label.equals("食品名称") || label.contains("样品名称"))
 												kMap.put("oper_production", m);
 											if (label.contains("检验结果")) kMap.put("oper_result", m);
@@ -166,38 +170,39 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 									}
 								}
 
-								for (; n < allList.size(); n++) {
-									String seq = String.valueOf(allList.get(n).get(0)).trim();
-									if (StrUtil.isEmpty(seq)) break;
-									ProductionQuality productionQuality = new ProductionQuality();
-									productionQuality.setUrl(href);
-									productionQuality.setCreatedAt(new Date());
-									if (Objects.nonNull(kMap.get("enterprise_name"))) {
-										productionQuality.setEnterpriseName(String.valueOf(
-												allList.get(n).get(kMap.get("enterprise_name")))
-												.trim());
-									}
-									if (Objects.nonNull(kMap.get("oper_production"))) {
-										productionQuality.setOperProduction(String.valueOf(
-												allList.get(n).get(kMap.get("oper_production")))
-												.trim());
-									}
-									if (Objects.nonNull(kMap.get("oper_result"))) {
-										productionQuality.setOperResult(String.valueOf(
-												allList.get(n).get(kMap.get("oper_result")))
-												.trim());
-									}
-									if (Objects.nonNull(kMap.get("oper_org"))) {
-										productionQuality.setOperOrg(String.valueOf(
-												allList.get(n).get(kMap.get("oper_org")))
-												.trim());
-									}
+								if (n > 0) {
+									for (; n < allList.size(); n++) {
+										String seq = String.valueOf(allList.get(n).get(0)).trim();
+										if (StrUtil.isEmpty(seq)) break;
+										ProductionQuality productionQuality = new ProductionQuality();
+										productionQuality.setUrl(href);
+										productionQuality.setCreatedAt(new Date());
+										if (Objects.nonNull(kMap.get("enterprise_name"))) {
+											productionQuality.setEnterpriseName(String.valueOf(
+													allList.get(n).get(kMap.get("enterprise_name")))
+													.trim());
+										}
+										if (Objects.nonNull(kMap.get("oper_production"))) {
+											productionQuality.setOperProduction(String.valueOf(
+													allList.get(n).get(kMap.get("oper_production")))
+													.trim());
+										}
+										if (Objects.nonNull(kMap.get("oper_result"))) {
+											productionQuality.setOperResult(String.valueOf(
+													allList.get(n).get(kMap.get("oper_result")))
+													.trim());
+										}
+										if (Objects.nonNull(kMap.get("oper_org"))) {
+											productionQuality.setOperOrg(String.valueOf(
+													allList.get(n).get(kMap.get("oper_org")))
+													.trim());
+										}
 
-									productionQuality.setPublishDate(publishDate);
-									productionQuality.setSource(source);
-									saveProductionQualityOne(productionQuality, false);
+										productionQuality.setPublishDate(publishDate);
+										productionQuality.setSource(source);
+										saveProductionQualityOne(productionQuality, false);
+									}
 								}
-
 
 							}
 						}
