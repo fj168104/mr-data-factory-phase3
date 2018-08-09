@@ -28,6 +28,7 @@
     <result column="judge_date" property="judgeDate" jdbcType="VARCHAR" />
     <result column="judge_auth" property="judgeAuth" jdbcType="VARCHAR" />
     <result column="publish_date" property="publishDate" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
   </resultMap>
 
   <!--通过链接地址删除全部-->
