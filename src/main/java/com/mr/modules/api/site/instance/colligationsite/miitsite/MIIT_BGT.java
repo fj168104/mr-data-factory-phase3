@@ -146,11 +146,17 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 								Map<String, Integer> kMap = Maps.newHashMap();
 								outer:
 								for (int k = 1; k < allList.size(); k++) {
-									Object value1 = allList.get(k).get(0);
-									if (Objects.isNull(value1)) break;
+									Object value01 = allList.get(k).get(0);
+									Object value11 = allList.get(k).get(1);
+									if (Objects.isNull(value01) && Objects.isNull(value11)) break;
 
-									Object value2 = allList.get(k).get(1);
-									if (String.valueOf(value1).trim().equals("序号") && String.valueOf(value2).trim().replaceAll("\\s*", "").equals("标称生产企业名称")) {
+									Object value02 = allList.get(k).get(1);
+									Object value12 = allList.get(k).get(2);
+
+									if ((String.valueOf(value01).trim().equals("序号")
+											&& String.valueOf(value02).trim().replaceAll("\\s*", "").equals("标称生产企业名称"))
+											|| (String.valueOf(value11).trim().equals("序号")
+											&& String.valueOf(value12).trim().replaceAll("\\s*", "").equals("标称生产企业名称"))) {
 										//获取参与取值的列index
 										if (n == 0) {
 											n = k + 1;
