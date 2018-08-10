@@ -25,12 +25,12 @@ public class AdminPunish extends BaseEntity {
     /**
      * 数据来源
      */
-    private String source;
+    private String source = "";
 
     /**
      * 主题
      */
-    private String subject;
+    private String subject = "";
 
     /**
      * 唯一性标识(同一数据来源的同一主题内唯一)
@@ -40,102 +40,102 @@ public class AdminPunish extends BaseEntity {
     /**
      * url
      */
-    private String url;
+    private String url = "";
 
     /**
      * 主体类型: 01-企业 02-个人
      */
     //@Column(name = "object_type")
-    private String objectType;
+    private String objectType = "";
 
     /**
      * 企业名称
      */
     //@Column(name = "enterprise_name")
-    private String enterpriseName;
+    private String enterpriseName = "";
 
     /**
      * 统一社会信用代码
      */
     //@Column(name = "enterprise_code1")
-    private String enterpriseCode1;
+    private String enterpriseCode1 = "";
 
     /**
      * 营业执照注册号
      */
     //@Column(name = "enterprise_code2")
-    private String enterpriseCode2;
+    private String enterpriseCode2= "";
 
     /**
      * 组织机构代码
      */
     //@Column(name = "enterprise_code3")
-    private String enterpriseCode3;
+    private String enterpriseCode3= "";
     
     /**
      * 税务登记号
      */
-    private String enterpriseCode4;
+    private String enterpriseCode4= "";
 
     /**
      * 法定代表人/负责人姓名|负责人姓名
      */
     //@Column(name = "person_name")
-    private String personName;
+    private String personName = "";
 
     /**
      * 法定代表人身份证号|负责人身份证号
      */
     //@Column(name = "person_id")
-    private String personId;
+    private String personId = "";
 
     /**
      * 处罚类型
      */
     //@Column(name = "punish_type")
-    private String punishType;
+    private String punishType = "";
 
     /**
      * 处罚事由
      */
     //@Column(name = "punish_reason")
-    private String punishReason;
+    private String punishReason = "";
 
     /**
      * 处罚依据
      */
     //@Column(name = "punish_according")
-    private String punishAccording;
+    private String punishAccording = "";
 
     /**
      * 处罚结果
      */
     //@Column(name = "punish_result")
-    private String punishResult;
+    private String punishResult = "";
 
     /**
      * 执行文号
      */
     //@Column(name = "judge_no")
-    private String judgeNo;
+    private String judgeNo = "";
 
     /**
      * 执行时间
      */
     //@Column(name = "judge_date")
-    private String judgeDate;
+    private String judgeDate = "";
 
     /**
      * 判决机关
      */
     //@Column(name = "judge_auth")
-    private String judgeAuth;
+    private String judgeAuth = "";
 
     /**
      * 发布日期
      */
     //@Column(name = "publish_date")
-    private String publishDate;
+    private String publishDate = "";
 
     /**
      * 状态

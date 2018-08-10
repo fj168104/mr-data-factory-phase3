@@ -40,7 +40,9 @@ public class HaiKuan_LaSa_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
         }
         List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
         for(Map map : listMap){
-            extractDocData(map.get("sourceUrl").toString(),map.get("publishDate").toString(),map.get("text").toString());
+            if("".equals(map.get("attachmentName"))){
+                extractDocData(map.get("sourceUrl").toString(),map.get("publishDate").toString(),map.get("text").toString());
+            }
         }
         return null;
     }
@@ -60,16 +62,45 @@ public class HaiKuan_LaSa_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
         adminPunish.setCreatedAt(new Date());
         adminPunish.setSubject("拉萨海关知识产权行政处罚");
         adminPunish.setSource("拉萨海关");
-        adminPunish.setPunishReason(text);
-        text = text.replaceAll(" ","");
-        text = text.replaceAll("\\n","，");
-        text = text.replaceAll("。","，");
+        text = text.replace("：营业执照","营业执照：");
+        text = text.replace("　"," ");
+        text = text.replace(" "," ");
+        text = text.replaceAll("：([\\s])+","：");
+        text = text.replace("字 [","字[");
+        text = text.replace("] 第 ","]第");
+        text = text.replace("第 ","]第");
+        text = text.replace(" 号","号");
+        text = text.replaceAll("([\\s])+","，");
+        text = text.replace("。","，");
+        text = text.replaceAll("[，]+","，");
         String[] textArr = text.split("，");
+        adminPunish.setPunishReason(text);
         for(String str : textArr){
-            log.info("-----------------"+str);
+            if(str.contains("：")){
+                String[] strArr = str.split("：");
+                if(strArr.length>=2&&strArr[1].length()>6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&(adminPunish.getEnterpriseName()==null||"".equals(adminPunish.getPersonName()))){
+                    adminPunish.setEnterpriseName(strArr[1]);
+                    adminPunish.setObjectType("02");
+                }
+                if(strArr.length>=2&&strArr[1].length()<=6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&(adminPunish.getPersonName()==null||"".equals(adminPunish.getPersonName()))){
+                    adminPunish.setPersonName(strArr[1]);
+                    adminPunish.setObjectType("01");
+                }
+                if(strArr.length>=2&&strArr[0].contains("证件")){
+                    adminPunish.setEnterpriseCode1(strArr[1]);
+                }
+                if(strArr.length>=2&&strArr[0].contains("代表人")){
+                    adminPunish.setPersonName(strArr[1]);
+                }
+            }
+            if(str.contains("知字")&&str.contains("号")){
+                adminPunish.setJudgeNo(str);
+            }
+
+
         }
         adminPunish.setUniqueKey(MD5Util.encode(sourceUrl+adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
-        /*saveAdminPunishOne(adminPunish,false);*/
+        saveAdminPunishOne(adminPunish,false);
 
     }
 

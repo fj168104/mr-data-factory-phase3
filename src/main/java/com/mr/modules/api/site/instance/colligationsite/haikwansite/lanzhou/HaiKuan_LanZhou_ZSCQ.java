@@ -93,6 +93,8 @@ public class HaiKuan_LanZhou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
         adminPunish.setPunishReason(text);
         text = text.replaceAll(" ","");
         text = text.replaceAll("\\n","，");
+        text = text.replaceAll("[，]+","，");
+
         String[] textArr = text.split("，");
         for(String str : textArr){
             if(str.contains("罚字")){

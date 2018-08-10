@@ -27,12 +27,13 @@ import java.util.*;
 public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_CollgationSite{
     int sizePage = 1;
     int nextPagesize = 0;//用于判断递归次数
+    //用户存储，filePath，fileName，attachmentType(附件类型),publishDate
+    List<Map<String,String>> listMap = new ArrayList<>();
     /**
      * 提取正文
      */
     public List<Map<String,String>> webContext(String increaseFlag,String baseUrl,String url,String ip,String port,String source,String area) {
-        //用户存储，filePath，fileName，attachmentType(附件类型),publishDate
-        List<Map<String,String>> listMap = new ArrayList<>();
+
         //获取页数
         WebClient webClient = null;
 
@@ -65,8 +66,6 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         String text = "";
         //是否要继续执行翻页,:false需要翻页，true：不翻页
         boolean nextPageFlag = true;
-        //用于存储，filePath，fileName，attachmentType(附件类型)，publishDate
-        List<Map<String,String>> listMap = new ArrayList<>();
         //获取总页数
         nextPagesize = nextPagesize+1;
 
@@ -128,9 +127,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                                 nextPageFlag = (boolean)map.get("nextPageFlag");
                                 text = map.get("text").toString();
                             }
-                            if(nextPageFlag&&increaseFlag.equals("add")){
-                                break;
-                            }
+
 
                         } catch (IOException ioe){
                             log.error("网页处理IO异常···"+ioe.getMessage());
@@ -146,7 +143,10 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         mapAttr.put("filePath",hashKeyFilePath);
                         listMap.add(mapAttr);
                     }
-
+                    if(nextPageFlag&&increaseFlag.equals("add")){
+                        log.info("************************************{}************************************","增量处理完成");
+                        break;
+                    }
                 }
             }
             //递归操作下一页,nextPageFlag = false 执行翻页
