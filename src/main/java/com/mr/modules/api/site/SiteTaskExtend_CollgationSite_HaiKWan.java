@@ -122,7 +122,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
 
                             }else{/*清单列表不是直接附件*/
                                 HtmlPage htmlPageDetail = webClientDetail.getPage(detailUrl);
-                                Map map = parseDetailPage(htmlPageDetail,detailUrl,titleName,publishDate,source,area);
+                                Map map = parseDetailPage(htmlPageDetail,baseUrl,detailUrl,titleName,publishDate,source,area);
                                 attachmentName  = map.get("attachmentName").toString();
                                 nextPageFlag = (boolean)map.get("nextPageFlag");
                                 text = map.get("text").toString();
@@ -193,13 +193,14 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
      * @param titleName
      * @param publishDate
      */
-    public Map parseDetailPage(HtmlPage htmlPage,String detailUrl,String titleName,String publishDate,String source,String area){
+    public Map parseDetailPage(HtmlPage htmlPage,String baseUrl,String detailUrl,String titleName,String publishDate,String source,String area){
         //原文非附件的文本
         String text  = "";
         //用于存储，attachmentName（附件名称），nextPageFlag（翻页标识）
         Map<String,Object> map = new HashMap();
         boolean nextPageFlag = true;
         String attachmentName = "";
+        String attachmentType = "";
         List<HtmlElement> htmlElements = htmlPage.getByXPath("//div[@class='easysite-news-text']");
         if(htmlElements.size()>0){
             HtmlElement htmlElement = htmlElements.get(0);
@@ -214,17 +215,21 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
             ScrapyData scrapyData = new ScrapyData();
             if(htmlElementImgList.size()>0){
                 for(HtmlElement htmlElementImg : htmlElementImgList){
+                    WebClient webClient = null;
                     try {
+                        webClient = createWebClient("","");
                         String[] attachmentTypeStr = htmlElementImg.getAttribute("src").split("\\.");
-                        String attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
                         //创建路径
                         String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
                         //下载元素网页
                         saveFile(htmlPage,titleName+".html",hashKeyFilePath);
-                        Page page = htmlElementImg.click();
+                        Page page = webClient.getPage(baseUrl+htmlElementImg.getAttribute("src"));
                         //下载附件
-                        attachmentName = titleName+"."+attachmentType;
-                        saveFile(page,attachmentName,hashKeyFilePath);
+                        if(attachmentTypeStr.length>1){
+                            attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
+                            attachmentName = titleName+"."+attachmentType;
+                            saveFile(page,attachmentName,hashKeyFilePath);
+                        }
                         //准备入库操作
                         scrapyData.setHtml(htmlText);
                         scrapyData.setText(text);
@@ -240,21 +245,28 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         log.error("下载附件出现异常，请查验···"+e.getMessage());
                     }catch (Exception e){
                         log.error("保存附件出现异常，请检验···"+e.getMessage());
+                    }catch (Throwable throwable){
+                        log.info("创建浏览器窗体异常，请检查···"+ throwable.getMessage());
+                    }finally {
+                        webClient.close();
                     }
                 }
             }else if(htmlElementAList.size()>0){
                 for(HtmlElement htmlElementA : htmlElementAList){
                     try {
                         String[] attachmentTypeStr = htmlElementA.getAttribute("href").split("\\.");
-                        String attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
+
                         //创建路径
                         String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
                         //下载元素网页
                         saveFile(htmlPage,titleName+".html",hashKeyFilePath);
                         Page page = htmlElementA.click();
                         //下载附件
-                        attachmentName = titleName+"."+attachmentType;
-                        saveFile(page,attachmentName,hashKeyFilePath);
+                        if(attachmentTypeStr.length>1){
+                            attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
+                            attachmentName = titleName+"."+attachmentType;
+                            saveFile(page,attachmentName,hashKeyFilePath);
+                        }
                         //准备入库操作
                         scrapyData.setHtml(htmlText);
                         scrapyData.setText(text);
