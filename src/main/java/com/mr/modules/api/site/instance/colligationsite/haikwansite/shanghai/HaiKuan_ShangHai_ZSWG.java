@@ -1,5 +1,7 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.shanghai;
 
+import com.mr.common.OCRUtil;
+import com.mr.common.util.AIOCRUtil;
 import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,10 @@ import java.util.Map;
 @Component("haikuan_shanghai_zswg")
 public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
     @Autowired
+    OCRUtil ocrUtil;
+    @Autowired
+    AIOCRUtil aiocrUtil;
+    @Autowired
     SiteParams siteParams;
     @Override
     protected String execute() throws Throwable {
@@ -38,13 +45,8 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         if(increaseFlag==null){
             increaseFlag = "";
         }
-        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
-        for(Map map : listMap){
-            log.info(listMap.size()+"--------------{}----------------"+map.get("sourceUrl"),map.get("attachmentName"));
-            if("".equals(map.get("attachmentName"))||map.get("attachmentName")==null){
-                extractWebData(map.get("sourceUrl").toString(),map.get("publishDate").toString(),map.get("text").toString());
-            }
-        }
+        webContext(increaseFlag,baseUrl,url,ip,port,source,area);
+
         return null;
     }
 
@@ -52,13 +54,21 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
     protected String executeOne() throws Throwable {
         return super.executeOne();
     }
+    //提取附件为PDF的文本内容，调用ocr识别
+    public String extractWebDOCXLSData(String filePath,String fileName){
+        String filePathName = filePath+ File.separator+fileName;
+        ocrUtil.pdf2image(filePathName);
+        String text = AIOCRUtil.getTextFromImageFile(filePathName.replace(".pdf",".png"));
+        return text;
+    }
     //提取结构化数据
-    public void extractWebData(String sourceUrl,String publishDate,String text){
+    @Override
+    public void extractWebData(Map<String,String> map){
         //实体标识 计数
-        int entityCount = 0;
+        String text = map.get("text");
         AdminPunish adminPunish = new AdminPunish();
-        adminPunish.setUrl(sourceUrl);
-        adminPunish.setPublishDate(publishDate);
+        adminPunish.setUrl(map.get("sourceUrl").toString());
+        adminPunish.setPublishDate(map.get("publishDate").toString());
         adminPunish.setUpdatedAt(new Date());
         adminPunish.setCreatedAt(new Date());
         adminPunish.setSubject("上海海关走私违规行政处罚");
@@ -79,6 +89,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replaceAll("当[\\s]+事[\\s]+人","当事人");
         text = text.replaceAll("([\\s])+","，");
         text = text.replaceAll("[，]+","，");
+        text = text.replace("当事人：，","当事人：");
 
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);
@@ -101,7 +112,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                     adminPunish.setPersonName(strArr[1]);
                 }
             }
-            if(!str.contains("：")&&(str.contains("知字")||str.contains("知罚字"))&&str.contains("号")){
+            if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字"))&&str.contains("号")){
                 adminPunish.setJudgeNo(str);
             }
 
@@ -112,7 +123,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         if(!adminPunish.getEnterpriseName().equals("")){
             adminPunish.setObjectType("02");
         }
-        adminPunish.setUniqueKey(MD5Util.encode(sourceUrl+adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
+        adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
         saveAdminPunishOne(adminPunish,false);
 
     }
