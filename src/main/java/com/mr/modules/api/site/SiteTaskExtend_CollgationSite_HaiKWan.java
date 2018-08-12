@@ -32,7 +32,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
     /**
      * 提取正文
      */
-    public List<Map<String,String>> webContext(String increaseFlag,String baseUrl,String url,String ip,String port,String source,String area) {
+    public void webContext(String increaseFlag,String baseUrl,String url,String ip,String port,String source,String area) {
 
         //获取页数
         WebClient webClient = null;
@@ -41,7 +41,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
             webClient = createWebClient("", "");
             HtmlPage htmlPage = webClient.getPage(url);
             //获取主题列表
-            listMap = parseListPage(increaseFlag,htmlPage, ip, port, baseUrl, source,area);
+            parseListPage(increaseFlag,htmlPage, ip, port, baseUrl, source,area);
             //进行目标详情页面解析
 
             //进行翻页操作
@@ -53,7 +53,6 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         } finally {
             webClient.close();
         }
-        return listMap;
     }
     /**
      * 解析主题清单网页
@@ -61,7 +60,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
      * @param ip
      * @param port
      */
-    public  List<Map<String,String>> parseListPage(String increaseFlag,HtmlPage htmlPage, String ip, String port,String baseUrl,String source,String area){
+    public  void parseListPage(String increaseFlag,HtmlPage htmlPage, String ip, String port,String baseUrl,String source,String area){
         //原文非附件的文本类容
         String text = "";
         //是否要继续执行翻页,:false需要翻页，true：不翻页
@@ -141,7 +140,21 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         mapAttr.put("publishDate",publishDate);
                         mapAttr.put("attachmentName",attachmentName);
                         mapAttr.put("filePath",hashKeyFilePath);
-                        listMap.add(mapAttr);
+                        /**
+                         * 第二步操作，结构化入库
+                         */
+
+                        if("".equals(attachmentName)){//2.1 网页解析
+                            extractWebData(mapAttr);
+                        }else if(attachmentName.contains(".doc")){//2.2 附件doc解析
+                            extractDocData(mapAttr);
+                        }else if(attachmentName.contains(".xls")){//2.3 附件xls解析
+                            extractXlsData(mapAttr);
+                        }else if(attachmentName.contains(".pdf")){//2.4 附件pdf解析
+                            extractPdfData(mapAttr);
+                        }else {//2.5一般为各种类型图片
+                            extractImgData(mapAttr);
+                        }
                     }
                     if(nextPageFlag&&increaseFlag.equals("add")){
                         log.info("************************************{}************************************","增量处理完成");
@@ -157,7 +170,6 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 }
             }
         }
-        return listMap;
     }
 
     /**
@@ -306,5 +318,41 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         map.put("attachmentName",attachmentName);
         map.put("nextPageFlag",nextPageFlag);
         return map;
+    }
+    /**
+     * 提取网页文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractWebData(Map<String,String> map){
+
+    }
+
+    /**
+     * 提取网页中附件为：pdf(可读，不可读，img)文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractPdfData(Map<String,String> map){
+
+    }
+    /**
+     * 提取网页中附件为：img(各种类型的图片)文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractImgData(Map<String,String> map){
+
+    }
+    /**
+     * 提取网页中附件为：doc文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractDocData(Map<String,String> map){
+
+    }
+    /**
+     * 提取网页中附件为：xls\xlsx文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractXlsData(Map<String,String> map){
+
     }
 }
