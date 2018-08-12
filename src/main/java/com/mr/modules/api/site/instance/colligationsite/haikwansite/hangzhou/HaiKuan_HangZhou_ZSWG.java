@@ -82,6 +82,7 @@ public class HaiKuan_HangZhou_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replace("：为：","：");
         text = text.replace("：为","：");
         text = text.replace("（，","（");
+        text = text.replace("政处罚决定书，","政处罚决定书");
 
 
         String[] textArr = text.split("，");
