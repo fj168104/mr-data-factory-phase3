@@ -90,6 +90,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replaceAll("([\\s])+","，");
         text = text.replaceAll("[，]+","，");
         text = text.replace("当事人：，","当事人：");
+        text = text.replace("当事人:，","当事人：");
 
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);
@@ -112,6 +113,10 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                     adminPunish.setPersonName(strArr[1]);
                 }
             }
+
+            if(adminPunish.getJudgeNo().equals("")&&str.contains("发布主题")&&str.contains("行政处罚决定书")){
+                adminPunish.setJudgeNo(str.replaceAll(".*行政处罚决定书",""));
+            }
             if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
                 adminPunish.setJudgeNo(str);
             }
@@ -123,6 +128,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         if(!adminPunish.getEnterpriseName().equals("")){
             adminPunish.setObjectType("02");
         }
+
         adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
         saveAdminPunishOne(adminPunish,false);
 
@@ -156,6 +162,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replaceAll("([\\s])+","，");
         text = text.replaceAll("[，]+","，");
         text = text.replace("当事人：，","当事人：");
+        text = text.replace("当事人:，","当事人：");
 
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);
@@ -177,6 +184,9 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                 if(strArr.length>=2&&strArr[0].contains("代表人")){
                     adminPunish.setPersonName(strArr[1]);
                 }
+            }
+            if(adminPunish.getJudgeNo().equals("")&&str.contains("发布主题")&&str.contains("行政处罚决定书")){
+                adminPunish.setJudgeNo(str.replaceAll(".*行政处罚决定书",""));
             }
             if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
                 adminPunish.setJudgeNo(str);
@@ -222,6 +232,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replaceAll("([\\s])+","，");
         text = text.replaceAll("[，]+","，");
         text = text.replace("当事人：，","当事人：");
+        text = text.replace("当事人:，","当事人：");
 
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);
@@ -243,6 +254,9 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                 if(strArr.length>=2&&strArr[0].contains("代表人")){
                     adminPunish.setPersonName(strArr[1]);
                 }
+            }
+            if(adminPunish.getJudgeNo().equals("")&&str.contains("发布主题")&&str.contains("行政处罚决定书")){
+                adminPunish.setJudgeNo(str.replaceAll(".*行政处罚决定书",""));
             }
             if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
                 adminPunish.setJudgeNo(str);
