@@ -1,12 +1,16 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.shantou;
 
+import com.mr.framework.poi.excel.ExcelReader;
 import com.mr.modules.api.SiteParams;
+import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
+import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,26 +25,113 @@ import java.util.Map;
 @Scope("prototype")
 @Component("haikuan_shantou_zswg")
 public class HaiKuan_ShanTou_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
-    @Autowired
-    SiteParams siteParams;
-    @Override
-    protected String execute() throws Throwable {
-        String ip = "";
-        String port = "";
-        String source = "汕头海关走私违规行政处罚";
-        String area = "shantou";//区域为：汕头
-        String baseUrl = "http://shantou.customs.gov.cn";
-        String url = "http://shantou.customs.gov.cn/shantou_customs/596193/596226/596228/596230/index.html";
-        String increaseFlag = siteParams.map.get("increaseFlag");
-        if(increaseFlag==null){
-            increaseFlag = "";
-        }
-        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
-        return null;
-    }
+	@Autowired
+	SiteParams siteParams;
 
-    @Override
-    protected String executeOne() throws Throwable {
-        return super.executeOne();
-    }
+	@Override
+	protected String execute() throws Throwable {
+		String ip = "";
+		String port = "";
+		String source = "汕头海关走私违规行政处罚";
+		String area = "shantou";//区域为：汕头
+		String baseUrl = "http://shantou.customs.gov.cn";
+		String url = "http://shantou.customs.gov.cn/shantou_customs/596193/596226/596228/596230/index.html";
+		String increaseFlag = siteParams.map.get("increaseFlag");
+		if (increaseFlag == null) {
+			increaseFlag = "";
+		}
+		List<Map<String, String>> listMap = webContext(increaseFlag, baseUrl, url, ip, port, source, area);
+
+		for (Map map : listMap) {
+			if ("".equals(map.get("attachmentName"))) {
+				try {
+					extractWebData(map.get("sourceUrl").toString(), map.get("publishDate").toString(), map.get("text").toString());
+				}catch (Exception e){
+					e.printStackTrace();
+					log.error(e.getMessage());
+				}
+
+			}
+		}
+		return null;
+	}
+
+	@Override
+	protected String executeOne() throws Throwable {
+		return super.executeOne();
+	}
+
+	//提取结构化数据
+	public void extractWebData(String sourceUrl, String publishDate, String text) {
+
+		if(!text.contains("关缉违")) {
+			log.warn("数据错误 URL:" + sourceUrl);
+			return;
+		}
+		AdminPunish adminPunish = new AdminPunish();
+		adminPunish.setUrl(sourceUrl);
+		adminPunish.setPublishDate(publishDate);
+		adminPunish.setUpdatedAt(new Date());
+		adminPunish.setCreatedAt(new Date());
+
+		adminPunish.setObjectType("01");
+		adminPunish.setPunishReason(text);
+		String titleKey = text.substring(0, text.indexOf("发布时间")).replace("发布主题：", "")
+				.replace("中华人民共和国", "")
+				.replace("海关行政处罚决定书", "")
+				.replaceAll("\\s*", "");
+
+		adminPunish.setJudgeAuth(String.format("中华人民共和国%s海关", titleKey));
+		adminPunish.setSubject(String.format("%s海关走私违规行政处罚", titleKey));
+		adminPunish.setSource(String.format("%s海关", titleKey));
+		String sPunishStrng = "";
+		if(titleKey.equals("汕尾")){
+			 sPunishStrng = "尾关缉违";
+		}else {
+			 sPunishStrng = String.format("%s关缉违", titleKey.substring(0, 1));
+		}
+
+		//处罚字
+		if(!text.contains(sPunishStrng)) {
+			log.warn("数据问题：sPunishStrng " + sPunishStrng);
+			return;
+		}
+		String textBody = text.substring(text.indexOf(sPunishStrng));
+		String judgeNo = textBody.substring(0, textBody.indexOf("号") + 1).replaceAll("\\s*", "");
+		adminPunish.setJudgeNo(judgeNo);
+
+		//当事人
+		String body = textBody.substring(textBody.indexOf("号") + 1);
+		String body1 = body.replace("。", "，");
+		String enterpriseName = body1.substring(0, body1.indexOf("，"))
+				.replace("当事人", "")
+				.replace("：", "")
+				.replace(" ", "")
+				.replaceAll("\\s*", "").trim();
+		if(enterpriseName.contains("地址")){
+			enterpriseName = enterpriseName.substring(0, enterpriseName.indexOf("地址"));
+		}
+		adminPunish.setEnterpriseName(enterpriseName);
+
+		//法人
+		if (body1.contains("法定代表人")) {
+			String personName = "";
+			String body2 = body1.substring(body1.indexOf("法定代表人"));
+			String personString = body2.substring(0, body2.indexOf("，"));
+			if (personString.contains("：")) {
+				personName = personString.substring(personString.indexOf("：") + 1).replaceAll("\\s*", "");
+			} else {
+				personName = personString.replace("法定代表人", "").replaceAll("\\s*", "");
+			}
+			if(personName.contains("住所")){
+				personName = personName.substring(0, personName.indexOf("住所"));
+			}
+			adminPunish.setPersonName(personName);
+		}
+
+		adminPunish.setUniqueKey(MD5Util.encode(sourceUrl + adminPunish.getUrl() + adminPunish.getEnterpriseName() + adminPunish.getPersonName() + adminPunish.getPublishDate()));
+		saveAdminPunishOne(adminPunish, false);
+
+	}
+
 }

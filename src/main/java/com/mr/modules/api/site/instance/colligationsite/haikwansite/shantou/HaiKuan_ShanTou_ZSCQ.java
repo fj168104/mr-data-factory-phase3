@@ -1,12 +1,15 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.shantou;
 
 import com.mr.modules.api.SiteParams;
+import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
+import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +39,79 @@ public class HaiKuan_ShanTou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
             increaseFlag = "";
         }
         List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
+        for(Map map : listMap){
+            if("".equals(map.get("attachmentName"))){
+                extractWebData(map.get("sourceUrl").toString(),map.get("publishDate").toString(),map.get("text").toString());
+            }
+        }
+
         return null;
     }
 
     @Override
     protected String executeOne() throws Throwable {
         return super.executeOne();
+    }
+
+    //提取结构化数据
+    public void extractWebData(String sourceUrl,String publishDate,String text){
+        //实体标识 计数
+        int entityCount = 0;
+        AdminPunish adminPunish = new AdminPunish();
+        adminPunish.setUrl(sourceUrl);
+        adminPunish.setPublishDate(publishDate);
+        adminPunish.setUpdatedAt(new Date());
+        adminPunish.setCreatedAt(new Date());
+        adminPunish.setSubject("汕头海关知识产权行政处罚");
+        adminPunish.setSource("汕头海关");
+
+
+        text = text.replace("： 营业执照\\/","营业执照：");
+        text = text.replace("　"," ");
+        text = text.replace(" "," ");
+        text = text.replaceAll("([\\s])+：([\\s])+","：");
+        text = text.replace("。","，");
+        text = text.replace("(","（");
+        text = text.replace(")","）");
+        text = text.replace("字 [","字[");
+        text = text.replace(" 号","号");
+        text = text.replace("当事人名称","当事人");
+        text = text.replaceAll("([\\s])+","，");
+        text = text.replaceAll("[，]+","，");
+        text = text.replace("：，","：");
+        text = text.replace("，年","年");
+        text = text.replace("，月","月");
+        text = text.replace("，日","日");
+        text = text.replace("PAW，PATROL","PAW PATROL");
+
+        String[] textArr = text.split("，");
+        adminPunish.setPunishReason(text);
+        adminPunish.setJudgeAuth("汕头海关");
+        for(String str : textArr){
+            if(str.contains("：")){
+                String[] strArr = str.split("：");
+                if(strArr.length>=2&&str.contains("当事人：")&&!strArr[0].contains("发布主题")&&"".equals(adminPunish.getEnterpriseName())){
+                    adminPunish.setEnterpriseName(strArr[1]);
+                    adminPunish.setObjectType("01");
+                }
+                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照")||strArr[0].contains("企业代码"))){
+                    adminPunish.setEnterpriseCode1(strArr[1]);
+                }
+                if(strArr.length>=2&&strArr[0].contains("代表人")){
+                    adminPunish.setPersonName(strArr[1]);
+                }
+                if("".equals(adminPunish.getJudgeNo())&&str.contains("发布主题")&&(str.contains("知字")||str.contains("知罚字"))&&str.contains("号")){
+                    adminPunish.setJudgeNo((strArr[1].replaceAll(".*处罚决定书","")));
+
+                }
+
+            }
+
+        }
+
+        adminPunish.setUniqueKey(MD5Util.encode(sourceUrl+adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
+        adminPunish.setObjectType("01");
+        saveAdminPunishOne(adminPunish,false);
+
     }
 }
