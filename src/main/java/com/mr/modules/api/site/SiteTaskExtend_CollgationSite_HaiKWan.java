@@ -27,7 +27,7 @@ import java.util.*;
 public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_CollgationSite{
     int sizePage = 1;
     int nextPagesize = 0;//用于判断递归次数
-    //用户存储，filePath，fileName，attachmentType(附件类型),publishDate
+    //listMap用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
     List<Map<String,String>> listMap = new ArrayList<>();
     /**
      * 提取正文
