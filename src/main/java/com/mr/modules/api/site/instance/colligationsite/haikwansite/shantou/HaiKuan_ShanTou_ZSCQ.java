@@ -24,39 +24,14 @@ import java.util.Map;
 @Scope("prototype")
 @Component("haikuan_shantou_zscq")
 public class HaiKuan_ShanTou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
-    @Autowired
-    SiteParams  siteParams;
-    @Override
-    protected String execute() throws Throwable {
-        String ip = "";
-        String port = "";
-        String source = "汕头海关知识产权行政处罚";
-        String area = "shantou";//区域为：汕头
-        String baseUrl = "http://shantou.customs.gov.cn";
-        String url = "http://shantou.customs.gov.cn/shantou_customs/596193/596226/596228/596229/index.html";
-        String increaseFlag = siteParams.map.get("increaseFlag");
-        if(increaseFlag==null){
-            increaseFlag = "";
-        }
-        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
-        for(Map map : listMap){
-            if("".equals(map.get("attachmentName"))){
-                extractWebData(map.get("sourceUrl").toString(),map.get("publishDate").toString(),map.get("text").toString());
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    protected String executeOne() throws Throwable {
-        return super.executeOne();
-    }
 
     //提取结构化数据
-    public void extractWebData(String sourceUrl,String publishDate,String text){
-        //实体标识 计数
-        int entityCount = 0;
+    public void extractWebData(Map<String,String> map) {
+
+        String sourceUrl =  map.get("sourceUrl");
+        String publishDate = map.get("publishDate");
+        String text = map.get("text");
+
         AdminPunish adminPunish = new AdminPunish();
         adminPunish.setUrl(sourceUrl);
         adminPunish.setPublishDate(publishDate);
