@@ -47,23 +47,8 @@ public class HaiKuan_LanZhou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
             increaseFlag = "";
         }
         //搜集页面基本信息
-        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
-        for(Map map : listMap){
-            //filePath，fileName，attachmentType(附件类型),publishDate
-            String filePath = map.get("filePath").toString();
-            String fileName = map.get("attachmentName").toString();
-            String sourceUrl = map.get("sourceUrl").toString();
-            String publishDate = map.get("publishDate").toString();
-            try {
-                //解析提取附件为Doc网页相关数据
-                if(!"".equals(fileName)&&fileName.contains(".doc")){
-                    String text = ocrUtil.getTextFromDocAutoFilePath(filePath,fileName);
-                    extractDocData( sourceUrl, publishDate,text);
-                }
-            } catch (Exception e) {
-                log.error("从doc文本中提取正文内容出现异常···"+e.getMessage());
-            }
-        }
+        webContext(increaseFlag,baseUrl,url,ip,port,source,area);
+
         // 实现runnable借口，创建多线程并启动
         /*new Thread(new Runnable() {
             @Override
@@ -80,12 +65,20 @@ public class HaiKuan_LanZhou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
         return super.executeOne();
     }
     //提取结构化数据
-    public void extractDocData(String sourceUrl,String publishDate,String text){
+    @Override
+    public void extractDocData(Map<String,String> map){
+
+        String text = "";
+        try {
+            text =ocrUtil.getTextFromDocAutoFilePath(map.get("filePath"),map.get("attachmentName"));
+        } catch (Exception e) {
+            log.error("从附件doc中提取附件出现异常，请检查···"+e.getMessage());
+        }
         //实体标识 计数
         int entityCount = 0;
         AdminPunish adminPunish = new AdminPunish();
-        adminPunish.setUrl(sourceUrl);
-        adminPunish.setPublishDate(publishDate);
+        adminPunish.setUrl(map.get("sourceUrl"));
+        adminPunish.setPublishDate(map.get("publishDate"));
         adminPunish.setUpdatedAt(new Date());
         adminPunish.setCreatedAt(new Date());
         adminPunish.setSubject("兰州海关知识产权行政处罚");
@@ -117,7 +110,7 @@ public class HaiKuan_LanZhou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
                 adminPunish.setPersonId(str.replace("身份证号",""));
             }
         }
-        adminPunish.setUniqueKey(MD5Util.encode(sourceUrl+adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
+        adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
         saveAdminPunishOne(adminPunish,false);
 
     }

@@ -38,12 +38,8 @@ public class HaiKuan_ShenZhen_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         if(increaseFlag==null){
             increaseFlag = "";
         }
-        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
-        for(Map map : listMap){
-            if("".equals(map.get("attachmentName"))){
-                extractWebData(map.get("sourceUrl").toString(),map.get("publishDate").toString(),map.get("text").toString());
-            }
-        }
+        webContext(increaseFlag,baseUrl,url,ip,port,source,area);
+
         return null;
     }
 
@@ -52,16 +48,17 @@ public class HaiKuan_ShenZhen_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         return super.executeOne();
     }
     //提取结构化数据
-    public void extractWebData(String sourceUrl,String publishDate,String text){
-        //实体标识 计数
-        int entityCount = 0;
+    @Override
+    public void extractWebData(Map<String,String> map){
+
         AdminPunish adminPunish = new AdminPunish();
-        adminPunish.setUrl(sourceUrl);
-        adminPunish.setPublishDate(publishDate);
+        adminPunish.setUrl(map.get("sourceUrl"));
+        adminPunish.setPublishDate(map.get("publishDate"));
         adminPunish.setUpdatedAt(new Date());
         adminPunish.setCreatedAt(new Date());
         adminPunish.setSubject("深圳海关走私违规行政处罚");
         adminPunish.setSource("深圳海关");
+        String text = map.get("text");
 
         text = text.replace("罚决定书 ","罚决定书");
         text = text.replace("（行政处罚决定书）","行政处罚决定书");
@@ -127,7 +124,7 @@ public class HaiKuan_ShenZhen_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         if(!adminPunish.getEnterpriseName().equals("")){
             adminPunish.setObjectType("02");
         }
-        adminPunish.setUniqueKey(MD5Util.encode(sourceUrl+adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
+        adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
         saveAdminPunishOne(adminPunish,false);
 
     }

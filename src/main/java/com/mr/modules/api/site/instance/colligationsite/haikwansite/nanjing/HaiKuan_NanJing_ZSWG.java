@@ -35,7 +35,7 @@ public class HaiKuan_NanJing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
         if(increaseFlag==null){
             increaseFlag = "";
         }
-        List<Map<String,String>> listMap = webContext(increaseFlag,baseUrl,url,ip,port,source,area);
+        webContext(increaseFlag,baseUrl,url,ip,port,source,area);
         return null;
     }
 
