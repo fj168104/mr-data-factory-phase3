@@ -61,7 +61,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         String text = AIOCRUtil.getTextFromImageFile(filePathName.replace(".pdf",".png"));
         return text;
     }
-    //提取结构化数据
+    //提取Web结构化数据
     @Override
     public void extractWebData(Map<String,String> map){
         //实体标识 计数
@@ -90,6 +90,7 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replaceAll("([\\s])+","，");
         text = text.replaceAll("[，]+","，");
         text = text.replace("当事人：，","当事人：");
+        text = text.replace("当事人:，","当事人：");
 
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);
@@ -112,7 +113,82 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                     adminPunish.setPersonName(strArr[1]);
                 }
             }
-            if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字"))&&str.contains("号")){
+
+            if(adminPunish.getJudgeNo().equals("")&&str.contains("发布主题")&&str.contains("行政处罚决定书")){
+                adminPunish.setJudgeNo(str.replaceAll(".*行政处罚决定书",""));
+            }
+            if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
+                adminPunish.setJudgeNo(str);
+            }
+
+        }
+        if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
+            adminPunish.setObjectType("01");
+        }
+        if(!adminPunish.getEnterpriseName().equals("")){
+            adminPunish.setObjectType("02");
+        }
+
+        adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
+        saveAdminPunishOne(adminPunish,false);
+
+    }
+    //提取Doc结构化数据(这类附件不是具体实体，结构化的数据是在Web的文本中的)
+    @Override
+    public void extractDocData(Map<String,String> map){
+        //实体标识 计数
+        String text = map.get("text");
+        AdminPunish adminPunish = new AdminPunish();
+        adminPunish.setUrl(map.get("sourceUrl").toString());
+        adminPunish.setPublishDate(map.get("publishDate").toString());
+        adminPunish.setUpdatedAt(new Date());
+        adminPunish.setCreatedAt(new Date());
+        adminPunish.setSubject("上海海关走私违规行政处罚");
+        adminPunish.setSource("上海海关");
+
+
+        text = text.replace("　"," ");
+        text = text.replace(" "," ");
+        text = text.replaceAll("([\\s])+：([\\s])+","：");
+        text = text.replace("。","，");
+        text = text.replace("(","（");
+        text = text.replace(")","）");
+        text = text.replace("字 [","字[");
+        text = text.replace("] 第 ","]第");
+        text = text.replace("第 ","]第");
+        text = text.replace(" 号","号");
+        text = text.replace("当事人姓名/名称：","当事人： ");
+        text = text.replaceAll("当[\\s]+事[\\s]+人","当事人");
+        text = text.replaceAll("([\\s])+","，");
+        text = text.replaceAll("[，]+","，");
+        text = text.replace("当事人：，","当事人：");
+        text = text.replace("当事人:，","当事人：");
+
+        String[] textArr = text.split("，");
+        adminPunish.setPunishReason(text);
+        adminPunish.setJudgeAuth("中华人民共和国上海海关");
+        for(String str : textArr){
+            if(str.contains("：")){
+                String[] strArr = str.split("：");
+                if(strArr.length>=2&&strArr[1].length()>6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&"".equals(adminPunish.getEnterpriseName())){
+                    adminPunish.setEnterpriseName(strArr[1].replaceAll("（([0-9a-zA-Z]+)+）",""));
+                    adminPunish.setObjectType("02");
+                }
+                if(strArr.length>=2&&strArr[1].length()<=6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&"".equals(adminPunish.getPersonName())){
+                    adminPunish.setPersonName(strArr[1].replaceAll("（([0-9a-zA-Z]+)+）",""));
+                    adminPunish.setObjectType("01");
+                }
+                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照")||strArr[0].contains("企业代码"))){
+                    adminPunish.setEnterpriseCode1(strArr[1]);
+                }
+                if(strArr.length>=2&&strArr[0].contains("代表人")){
+                    adminPunish.setPersonName(strArr[1]);
+                }
+            }
+            if(adminPunish.getJudgeNo().equals("")&&str.contains("发布主题")&&str.contains("行政处罚决定书")){
+                adminPunish.setJudgeNo(str.replaceAll(".*行政处罚决定书",""));
+            }
+            if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
                 adminPunish.setJudgeNo(str);
             }
 
@@ -127,4 +203,81 @@ public class HaiKuan_ShangHai_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         saveAdminPunishOne(adminPunish,false);
 
     }
+    //提取Xls结构化数据(这类附件不是具体实体，结构化的数据是在Web的文本中的)
+    @Override
+    public void extractXlsData(Map<String,String> map){
+        //实体标识 计数
+        String text = map.get("text");
+        AdminPunish adminPunish = new AdminPunish();
+        adminPunish.setUrl(map.get("sourceUrl").toString());
+        adminPunish.setPublishDate(map.get("publishDate").toString());
+        adminPunish.setUpdatedAt(new Date());
+        adminPunish.setCreatedAt(new Date());
+        adminPunish.setSubject("上海海关走私违规行政处罚");
+        adminPunish.setSource("上海海关");
+
+
+        text = text.replace("　"," ");
+        text = text.replace(" "," ");
+        text = text.replaceAll("([\\s])+：([\\s])+","：");
+        text = text.replace("。","，");
+        text = text.replace("(","（");
+        text = text.replace(")","）");
+        text = text.replace("字 [","字[");
+        text = text.replace("] 第 ","]第");
+        text = text.replace("第 ","]第");
+        text = text.replace(" 号","号");
+        text = text.replace("当事人姓名/名称：","当事人： ");
+        text = text.replaceAll("当[\\s]+事[\\s]+人","当事人");
+        text = text.replaceAll("([\\s])+","，");
+        text = text.replaceAll("[，]+","，");
+        text = text.replace("当事人：，","当事人：");
+        text = text.replace("当事人:，","当事人：");
+
+        String[] textArr = text.split("，");
+        adminPunish.setPunishReason(text);
+        adminPunish.setJudgeAuth("中华人民共和国上海海关");
+        for(String str : textArr){
+            if(str.contains("：")){
+                String[] strArr = str.split("：");
+                if(strArr.length>=2&&strArr[1].length()>6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&"".equals(adminPunish.getEnterpriseName())){
+                    adminPunish.setEnterpriseName(strArr[1].replaceAll("（([0-9a-zA-Z]+)+）",""));
+                    adminPunish.setObjectType("02");
+                }
+                if(strArr.length>=2&&strArr[1].length()<=6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&"".equals(adminPunish.getPersonName())){
+                    adminPunish.setPersonName(strArr[1].replaceAll("（([0-9a-zA-Z]+)+）",""));
+                    adminPunish.setObjectType("01");
+                }
+                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照")||strArr[0].contains("企业代码"))){
+                    adminPunish.setEnterpriseCode1(strArr[1]);
+                }
+                if(strArr.length>=2&&strArr[0].contains("代表人")){
+                    adminPunish.setPersonName(strArr[1]);
+                }
+            }
+            if(adminPunish.getJudgeNo().equals("")&&str.contains("发布主题")&&str.contains("行政处罚决定书")){
+                adminPunish.setJudgeNo(str.replaceAll(".*行政处罚决定书",""));
+            }
+            if(!str.contains("：")&&(str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
+                adminPunish.setJudgeNo(str);
+            }
+
+        }
+        if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
+            adminPunish.setObjectType("01");
+        }
+        if(!adminPunish.getEnterpriseName().equals("")){
+            adminPunish.setObjectType("02");
+        }
+        adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
+        saveAdminPunishOne(adminPunish,false);
+
+    }
+    //提取Pdf结构化数据
+    @Override
+    public void extractPdfData(Map<String,String> map){}
+    //提取Img结构化数据
+    @Override
+    public void extractImgData(Map<String,String> map){}
+
 }
