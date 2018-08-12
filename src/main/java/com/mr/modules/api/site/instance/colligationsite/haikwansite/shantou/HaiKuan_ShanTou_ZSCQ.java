@@ -25,6 +25,25 @@ import java.util.Map;
 @Component("haikuan_shantou_zscq")
 public class HaiKuan_ShanTou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
 
+    @Autowired
+    SiteParams siteParams;
+
+    @Override
+    protected String execute() throws Throwable {
+        String ip = "";
+        String port = "";
+        String source = "汕头海关知识产权行政处罚";
+        String area = "shantou";//区域为：汕头
+        String baseUrl = "http://shantou.customs.gov.cn";
+        String url = "http://shantou.customs.gov.cn/shantou_customs/596193/596226/596228/596229/index.html";
+        String increaseFlag = siteParams.map.get("increaseFlag");
+        if(increaseFlag==null){
+            increaseFlag = "";
+        }
+        webContext(increaseFlag,baseUrl,url,ip,port,source,area);
+        return null;
+    }
+
     //提取结构化数据
     public void extractWebData(Map<String,String> map) {
 
