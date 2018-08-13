@@ -93,12 +93,16 @@ public class HaiKuan_LaSa_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan{
                 if(strArr.length>=2&&(strArr[0].contains("身份证号码")||strArr[0].contains("身份证号"))){
                     adminPunish.setPersonId(strArr[1]);
                 }
+                if(strArr[0].contains("发布主题")){
+                    adminPunish.setJudgeNo(strArr[1].replaceAll(".*行政处罚决定书",""));
+                }
+                if(strArr[0].contains("发布主题")){
+                    adminPunish.setJudgeAuth(strArr[1].replaceAll("行政处罚决定书.*",""));
+                }
             }
-            if((str.contains("知字")||str.contains("处字"))&&str.contains("号")){
+            if(str.contains("知字")&&str.contains("号")&&adminPunish.getJudgeNo().equals("")){
                 adminPunish.setJudgeNo(str);
             }
-
-
         }
 
         adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl()+adminPunish.getEnterpriseName()+adminPunish.getPersonName()+adminPunish.getPublishDate()));
