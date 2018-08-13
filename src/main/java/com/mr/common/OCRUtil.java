@@ -85,7 +85,7 @@ public class OCRUtil {
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		} finally {
-			FileUtil.del(entirePath);
+//			FileUtil.del(entirePath);
 		}
 
 		return bodyText;
@@ -123,7 +123,7 @@ public class OCRUtil {
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		} finally {
-			FileUtil.del(entirePath);
+//			FileUtil.del(entirePath);
 		}
 
 		return bodyText;
