@@ -73,6 +73,7 @@ public class HaiKuan_LaSa_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
         text = text.replaceAll("[，]+","，");
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);
+        adminPunish.setJudgeAuth("中国人民共和国拉萨海关");
         for(String str : textArr){
             if(str.contains("：")){
                 String[] strArr = str.split("：");
@@ -89,6 +90,12 @@ public class HaiKuan_LaSa_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan{
                 }
                 if(strArr.length>=2&&strArr[0].contains("代表人")){
                     adminPunish.setPersonName(strArr[1]);
+                }
+                if(strArr.length>=2&&strArr[0].contains("发布主题")&&strArr[1].contains("行政处罚决定书")&&strArr[1].contains("海关关于")){
+                    adminPunish.setJudgeAuth(strArr[1].replaceAll("海关关于.*","海关"));
+                }
+                if(strArr.length>=2&&strArr[0].contains("发布主题")&&strArr[1].contains("行政处罚决定书")&&!strArr[1].contains("海关关于")){
+                    adminPunish.setJudgeAuth(strArr[1].replaceAll("行政处罚决定书.*",""));
                 }
             }
             if(str.contains("知字")&&str.contains("号")){
