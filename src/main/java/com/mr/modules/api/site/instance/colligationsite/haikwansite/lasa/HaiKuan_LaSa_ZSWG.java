@@ -69,6 +69,7 @@ public class HaiKuan_LaSa_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan{
         text = text.replace("中国居民身份证号码","中国居民身份证号码：");
         text = text.replace("代表人：","代表人");
         text = text.replace("代表人：","代表人：：");
+        text = text.replace("当事人姓名/名称：","当事人：");
         text = text.replaceAll("[，]+","，");
         text = text.replace("，","，");
         String[] textArr = text.split("，");
@@ -76,11 +77,11 @@ public class HaiKuan_LaSa_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan{
         for(String str : textArr){
             if(str.contains("：")){
                 String[] strArr = str.split("：");
-                if(strArr.length>=2&&strArr[1].length()>6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&(adminPunish.getEnterpriseName()==null||"".equals(adminPunish.getPersonName()))){
+                if(strArr.length>=2&&strArr[1].length()>6&&str.contains("当事人：")&&!strArr[0].contains("发布主题")&&(adminPunish.getEnterpriseName()==null||"".equals(adminPunish.getPersonName()))){
                     adminPunish.setEnterpriseName(strArr[1]);
                     adminPunish.setObjectType("02");
                 }
-                if(strArr.length>=2&&strArr[1].length()<=6&&strArr[0].contains("当事人")&&!strArr[0].contains("发布主题")&&(adminPunish.getPersonName()==null||"".equals(adminPunish.getPersonName()))){
+                if(strArr.length>=2&&strArr[1].length()<=6&&str.contains("当事人：")&&!strArr[0].contains("发布主题")&&(adminPunish.getPersonName()==null||"".equals(adminPunish.getPersonName()))){
                     adminPunish.setPersonName(strArr[1]);
                     adminPunish.setObjectType("01");
                 }
