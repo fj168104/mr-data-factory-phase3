@@ -72,7 +72,7 @@ public class HaiKuan_KunMing_ZSCQ  extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replace(")","）");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[知][\\s]{0,}[罚,公][\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[知][\\s]{0,}[罚,公,处][\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -101,11 +101,11 @@ public class HaiKuan_KunMing_ZSCQ  extends SiteTaskExtend_CollgationSite_HaiKWan
         for(String str : textArr){
             if(str.contains("：")){
                 String[] strArr = str.split("：");
-                if(strArr.length>=2&&strArr[1].length()>6&&!strArr[0].contains("发布主题")&&strArr[0].contains("当事人")&&"".equals(adminPunish.getEnterpriseName())){
+                if(strArr.length>=2&&strArr[1].length()>6&&!strArr[0].contains("发布主题")&&str.contains("当事人：")&&"".equals(adminPunish.getEnterpriseName())){
                     adminPunish.setEnterpriseName(strArr[1]);
                     adminPunish.setObjectType("02");
                 }
-                if(strArr.length>=2&&strArr[1].length()<=6&&!strArr[0].contains("发布主题")&&(strArr[0].contains("当事人")||str.contains("姓名："))&&"".equals(adminPunish.getPersonName())){
+                if(strArr.length>=2&&strArr[1].length()<=6&&!strArr[0].contains("发布主题")&&(str.contains("当事人：")||str.contains("姓名："))&&"".equals(adminPunish.getPersonName())){
                     adminPunish.setPersonName(strArr[1]);
                     adminPunish.setObjectType("01");
                 }
