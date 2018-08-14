@@ -116,7 +116,7 @@ public class AIOCRUtil {
      * @return 返回单个图片识别结果内容
      */
     public static String getTextFromImageFile(String filePath) {
-        return getTextFromImageUrl(createTengXunAipOcrClient(), filePath);
+        return getTextFromImageFile(createTengXunAipOcrClient(), filePath);
     }
 
     /**
@@ -149,10 +149,11 @@ public class AIOCRUtil {
             aipOcr = createTengXunAipOcrClient();
         }
         StringBuilder sText = new StringBuilder();
-        for (int i = 0; i < 3; i++) {//最多进行3次尝试识别该图片内容
+        for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.generalOcr(filePath);
+                log.debug(result);
                 if (getGeneralResult(sText, result)) {
                     break;
                 }

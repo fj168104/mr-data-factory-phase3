@@ -56,6 +56,21 @@ public class BaiduOCRUtil {
      * @param url url
      * @return 返回单个图片识别结果内容
      */
+    public static String getTextStrFromImageUrl(String url) {
+        List<String> list = getTextFromImageUrl(url);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 从图像URL地址直接读取文本内容（通用OCR识别服务）
+     *
+     * @param url url
+     * @return 返回单个图片识别结果内容[每行内容为LIST中的一个元素]
+     */
     public static List<String> getTextFromImageUrl(String url) {
         return getTextFromImageUrl(createBaiduAipOcrClient(), url);
     }
@@ -65,6 +80,25 @@ public class BaiduOCRUtil {
      *
      * @param urlList url列表
      * @return 返回全部图片内容拼接后的结果
+     */
+    public static String getTextStrFromImageUrlList(List<String> urlList) {
+        if (urlList == null || urlList.size() == 0) {
+            log.warn("urlList is empty");
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        List<String> list = getTextFromImageUrlList(urlList);
+        for (String s : list) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 获取一组在线图片的全部文本内容(通用OCR识别服务)
+     *
+     * @param urlList url列表
+     * @return 返回全部图片内容拼接后的结果[每行内容为LIST中的一个元素]
      */
     public static List<String> getTextFromImageUrlList(List<String> urlList) {
         List<String> resultList = new ArrayList<>();
@@ -112,21 +146,59 @@ public class BaiduOCRUtil {
     /**
      * 识别本地图片文件上的文本内容（通用OCR识别服务）
      *
-     * @param filePath 图片文件路径
+     * @param filePath filePath 图片文件路径
      * @return 返回单个图片识别结果内容
+     */
+    public static String getTextStrFromImageFile(String filePath) {
+        List<String> list = getTextFromImageFile(createBaiduAipOcrClient(), filePath);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 识别本地图片文件上的文本内容（通用OCR识别服务）
+     *
+     * @param filePath 图片文件路径
+     * @return 返回单个图片识别结果内容[每行文本是list中的一个元素]
      */
     public static List<String> getTextFromImageFile(String filePath) {
         return getTextFromImageFile(createBaiduAipOcrClient(), filePath);
     }
 
     /**
+     * 识别本地图片文件上的文本内容（通用OCR识别服务）
+     *
+     * @param filePathList 图片文件路径
+     * @return 返回单个图片识别结果内容
+     */
+    public static String getTextStrFromImageFileList(List<String> filePathList) {
+        if (filePathList == null || filePathList.size() == 0) {
+            log.warn("filePathList is empty");
+            return "";
+        }
+        List<String> list = getTextFromImageFileList(filePathList);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    /**
      * 获取一组在线图片的全部文本内容(通用OCR识别服务)
      *
      * @param filePathList 图片文件路径集合
-     * @return 返回全部图片文件上按顺序拼接的文本内容
+     * @return 返回全部图片识别结果内容[每行文本是list中的一个元素]
      */
     public static List<String> getTextFromImageFileList(List<String> filePathList) {
         List<String> resultList = new ArrayList<>();
+        if (filePathList == null || filePathList.size() == 0) {
+            log.warn("filePathList is empty");
+            return resultList;
+        }
         if (filePathList == null || filePathList.size() == 0) {
             return resultList;
         }
@@ -149,11 +221,11 @@ public class BaiduOCRUtil {
             aipOcr = createBaiduAipOcrClient();
         }
         // 传入可选参数调用接口
-        HashMap<String, String> options = new HashMap<String, String>();
+        HashMap<String, String> options = new HashMap<>();
         options.put("detect_direction", "true");//是否检测图像朝向
         options.put("detect_language", "true");//是否检测语言
         options.put("probability", "true");//是否返回识别结果中每一行的置信度
-        List<String> resultList = new ArrayList<String>();
+        List<String> resultList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
                 //访问通用OCR识别，获取结果
@@ -179,14 +251,15 @@ public class BaiduOCRUtil {
     private static boolean getGeneralResult(List<String> resultList, String result) {
         boolean pResult = false;
         try {
-//            JsonNode jResult = JsonUtil.getJson(result);
-//            if (JsonUtil.getJsonIntValue(jResult, "ret", -1) == 0) {//成功
-//                JsonNode jItemList = JsonUtil.queryJsonArrayForce(jResult, "data.item_list");
-//                for (JsonNode jItem : jItemList) {
-//                    sText.append(JsonUtil.getJsonStringValue(jItem, "itemstring"));
-//                }
-//                pResult = true;
-//            }
+            JsonNode jResult = JsonUtil.getJson(result);
+            JsonNode jNode = JsonUtil.queryJson(jResult, "words_result");
+            if (jNode == null) {
+                return false;
+            }
+            for (JsonNode jItem : jNode) {
+                resultList.add(JsonUtil.getJsonStringValue(jItem, "words"));
+            }
+            pResult = true;
         } catch (Exception e) {
             log.error("getGeneralResult error,result={}", result, e);
         }
@@ -342,14 +415,17 @@ public class BaiduOCRUtil {
     public void setAppId(String appId) {
         BaiduOCRUtil.appId = appId;
     }
+
     @Value("${ocr.baip.app_key}")
     public void setAppKey(String appKey) {
         BaiduOCRUtil.appKey = appKey;
     }
+
     @Value("${ocr.baip.secret_key}")
     public void setSecretKey(String secretKey) {
         BaiduOCRUtil.secretKey = secretKey;
     }
+
     /**
      * 从配置文件中获取参数：文件的下载目录
      */
