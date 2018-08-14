@@ -1,11 +1,11 @@
 package com.mr.common.util;
 
-import cn.xsshome.taip.ocr.TAipOcr;
 import com.baidu.aip.ocr.AipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -17,124 +17,196 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * OCR识别工具
+ * 百度云OCR工具类
  *
- * @author pxu 2018/8/6 16:21
+ * @author pxu 2018/8/13 18:58
  */
 @Slf4j
-@Component("AI_OCR")
-public class AIOCRUtil {
-    /**
-     * 腾讯AI开放平台应用ID
-     */
-    private static String taipAppId;
-    /**
-     * 腾讯AI开放平台应用KEY
-     */
-    private static String taipAppKey;
-
+@Getter
+@Component
+public class BaiduOCRUtil {
     /**
      * 百度云 APP_ID
      */
-    private static String baipAppId;
+    private static String appId;
     /**
      * 百度云 APP_KEY
      */
-    private static String baipAppKey;
+    private static String appKey;
     /**
      * 百度云 SECRET_KEY
      */
-    private static String baipSecretKey;
+    private static String secretKey;
 
     /**
      * 文件的下载目录
      */
+    @Value("${ocr.download_dir}")
     private static String downloadDir;
 
     /**
-     * 从图像URL地址直接读取文本内容（调用腾讯AI开放平台-通用OCR识别服务）
+     * 从图像URL地址直接读取文本内容（通用OCR识别服务）
      *
      * @param url url
      * @return 返回单个图片识别结果内容
      */
-    public static String getTextFromImageUrl(String url) {
-        return getTextFromImageUrl(createTengXunAipOcrClient(), url);
+    public static String getTextStrFromImageUrl(String url) {
+        List<String> list = getTextFromImageUrl(url);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
+        }
+        return sb.toString();
     }
 
     /**
-     * 获取一组在线图片的全部文本内容(调用腾讯AI开放平台-通用OCR识别服务)
+     * 从图像URL地址直接读取文本内容（通用OCR识别服务）
+     *
+     * @param url url
+     * @return 返回单个图片识别结果内容[每行内容为LIST中的一个元素]
+     */
+    public static List<String> getTextFromImageUrl(String url) {
+        return getTextFromImageUrl(createBaiduAipOcrClient(), url);
+    }
+
+    /**
+     * 获取一组在线图片的全部文本内容(通用OCR识别服务)
      *
      * @param urlList url列表
      * @return 返回全部图片内容拼接后的结果
      */
-    public static String getTextFromImageUrlList(List<String> urlList) {
+    public static String getTextStrFromImageUrlList(List<String> urlList) {
         if (urlList == null || urlList.size() == 0) {
+            log.warn("urlList is empty");
             return "";
         }
-        StringBuilder sText = new StringBuilder();
-        TAipOcr aioOcr = createTengXunAipOcrClient();
-        for (String url : urlList) {
-            sText.append(getTextFromImageUrl(aioOcr, url));
+        StringBuilder sb = new StringBuilder();
+        List<String> list = getTextFromImageUrlList(urlList);
+        for (String s : list) {
+            sb.append(s);
         }
-        return sText.toString();
+        return sb.toString();
     }
 
     /**
-     * 从图像URL地址直接读取文本内容（调用腾讯AI开放平台-通用OCR识别服务）
+     * 获取一组在线图片的全部文本内容(通用OCR识别服务)
+     *
+     * @param urlList url列表
+     * @return 返回全部图片内容拼接后的结果[每行内容为LIST中的一个元素]
+     */
+    public static List<String> getTextFromImageUrlList(List<String> urlList) {
+        List<String> resultList = new ArrayList<>();
+        if (urlList == null || urlList.size() == 0) {
+            log.warn("urlList is empty");
+            return resultList;
+        }
+        AipOcr aipOcr = createBaiduAipOcrClient();
+        for (String url : urlList) {
+            resultList.addAll(getTextFromImageUrl(aipOcr, url));
+        }
+        return resultList;
+    }
+
+    /**
+     * 从图像URL地址直接读取文本内容（通用OCR识别服务）
      *
      * @return 图片文本内容
      */
-    public static String getTextFromImageUrl(TAipOcr aipOcr, String url) {
+    public static List<String> getTextFromImageUrl(AipOcr aipOcr, String url) {
         if (aipOcr == null) {
-            aipOcr = createTengXunAipOcrClient();
+            aipOcr = createBaiduAipOcrClient();
         }
-        StringBuilder sText = new StringBuilder();
-        for (int i = 0; i < 3; i++) {//最多进行3次尝试识别该图片内容
+        // 传入可选参数调用接口
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("detect_direction", "true");//是否检测图像朝向
+        options.put("detect_language", "true");//是否检测语言
+        options.put("probability", "true");//是否返回识别结果中每一行的置信度
+        List<String> resultList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
-                byte[] bImg = IOUtils.toByteArray(new URL(url));
                 //访问通用OCR识别，获取结果
-                String result = aipOcr.generalOcr(bImg);
-                if (getGeneralResult(sText, result)) {
+                String result = aipOcr.basicGeneralUrl(url, options).toString(2);
+                log.debug(result);
+                if (getGeneralResult(resultList, result)) {
                     break;
                 }
-
             } catch (Exception e) {
                 log.error("getTextFromImageUrl error,url={}", url, e);
             }
         }
-        return sText.toString();
+        return resultList;
     }
 
     /**
-     * 识别本地图片文件上的文本内容（调用腾讯AI开放平台-通用OCR识别服务）
+     * 识别本地图片文件上的文本内容（通用OCR识别服务）
      *
-     * @param filePath 图片文件路径
+     * @param filePath filePath 图片文件路径
      * @return 返回单个图片识别结果内容
      */
-    public static String getTextFromImageFile(String filePath) {
-        return getTextFromImageFile(createTengXunAipOcrClient(), filePath);
+    public static String getTextStrFromImageFile(String filePath) {
+        List<String> list = getTextFromImageFile(createBaiduAipOcrClient(), filePath);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
+        }
+        return sb.toString();
     }
 
     /**
-     * 获取一组在线图片的全部文本内容(调用腾讯AI开放平台-通用OCR识别服务)
+     * 识别本地图片文件上的文本内容（通用OCR识别服务）
      *
-     * @param filePathList 图片文件路径集合
-     * @return 返回全部图片文件上按顺序拼接的文本内容
+     * @param filePath 图片文件路径
+     * @return 返回单个图片识别结果内容[每行文本是list中的一个元素]
      */
-    public static String getTextFromImageFileList(List<String> filePathList) {
+    public static List<String> getTextFromImageFile(String filePath) {
+        return getTextFromImageFile(createBaiduAipOcrClient(), filePath);
+    }
+
+    /**
+     * 识别本地图片文件上的文本内容（通用OCR识别服务）
+     *
+     * @param filePathList 图片文件路径
+     * @return 返回单个图片识别结果内容
+     */
+    public static String getTextStrFromImageFileList(List<String> filePathList) {
         if (filePathList == null || filePathList.size() == 0) {
+            log.warn("filePathList is empty");
             return "";
         }
-        StringBuilder sText = new StringBuilder();
-        TAipOcr aioOcr = createTengXunAipOcrClient();
-        for (String filePath : filePathList) {
-            sText.append(getTextFromImageFile(aioOcr, filePath));
+        List<String> list = getTextFromImageFileList(filePathList);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
         }
-        return sText.toString();
+        return sb.toString();
+    }
+
+    /**
+     * 获取一组在线图片的全部文本内容(通用OCR识别服务)
+     *
+     * @param filePathList 图片文件路径集合
+     * @return 返回全部图片识别结果内容[每行文本是list中的一个元素]
+     */
+    public static List<String> getTextFromImageFileList(List<String> filePathList) {
+        List<String> resultList = new ArrayList<>();
+        if (filePathList == null || filePathList.size() == 0) {
+            log.warn("filePathList is empty");
+            return resultList;
+        }
+        if (filePathList == null || filePathList.size() == 0) {
+            return resultList;
+        }
+        AipOcr aioOcr = createBaiduAipOcrClient();
+        for (String filePath : filePathList) {
+            resultList.addAll(getTextFromImageFile(aioOcr, filePath));
+        }
+        return resultList;
     }
 
     /**
@@ -144,43 +216,50 @@ public class AIOCRUtil {
      * @param filePath
      * @return
      */
-    public static String getTextFromImageFile(TAipOcr aipOcr, String filePath) {
+    public static List<String> getTextFromImageFile(AipOcr aipOcr, String filePath) {
         if (aipOcr == null) {
-            aipOcr = createTengXunAipOcrClient();
+            aipOcr = createBaiduAipOcrClient();
         }
-        StringBuilder sText = new StringBuilder();
+        // 传入可选参数调用接口
+        HashMap<String, String> options = new HashMap<>();
+        options.put("detect_direction", "true");//是否检测图像朝向
+        options.put("detect_language", "true");//是否检测语言
+        options.put("probability", "true");//是否返回识别结果中每一行的置信度
+        List<String> resultList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
                 //访问通用OCR识别，获取结果
-                String result = aipOcr.generalOcr(filePath);
+                String result = aipOcr.basicGeneral(filePath, options).toString(2);
                 log.debug(result);
-                if (getGeneralResult(sText, result)) {
+                if (getGeneralResult(resultList, result)) {
                     break;
                 }
             } catch (Exception e) {
                 log.error("getTextFromImageFile error,filePath={}", filePath, e);
             }
         }
-        return sText.toString();
+        return resultList;
     }
 
     /**
-     * 获取通用OCR识别结果成文本内容（腾讯AI开放平台）
+     * 获取通用OCR识别结果
      *
+     * @param resultList
      * @param result
      * @return
      */
-    private static boolean getGeneralResult(StringBuilder sText, String result) {
+    private static boolean getGeneralResult(List<String> resultList, String result) {
         boolean pResult = false;
         try {
             JsonNode jResult = JsonUtil.getJson(result);
-            if (JsonUtil.getJsonIntValue(jResult, "ret", -1) == 0) {//成功
-                JsonNode jItemList = JsonUtil.queryJsonArrayForce(jResult, "data.item_list");
-                for (JsonNode jItem : jItemList) {
-                    sText.append(JsonUtil.getJsonStringValue(jItem, "itemstring"));
-                }
-                pResult = true;
+            JsonNode jNode = JsonUtil.queryJson(jResult, "words_result");
+            if (jNode == null) {
+                return false;
             }
+            for (JsonNode jItem : jNode) {
+                resultList.add(JsonUtil.getJsonStringValue(jItem, "words"));
+            }
+            pResult = true;
         } catch (Exception e) {
             log.error("getGeneralResult error,result={}", result, e);
         }
@@ -188,7 +267,7 @@ public class AIOCRUtil {
     }
 
     /**
-     * 识别网络图片表格数据到一个List中(调用百度云表格识别接口)
+     * 识别网络图片表格数据到一个List中
      *
      * @param url         图片URL地址
      * @param columnNames 表格列名数组
@@ -199,7 +278,7 @@ public class AIOCRUtil {
     }
 
     /**
-     * 识别网络图片表格数据到一个List中(调用百度云表格识别接口)
+     * 识别网络图片表格数据到一个List中
      *
      * @param client      百度云客户端
      * @param url         图片URL地址
@@ -220,7 +299,7 @@ public class AIOCRUtil {
     }
 
     /**
-     * 识别本地图片表格数据到一个List中(调用百度云表格识别接口)
+     * 识别本地图片表格数据到一个List中
      *
      * @param filePath    图片路径
      * @param columnNames 表格列名数组
@@ -231,7 +310,7 @@ public class AIOCRUtil {
     }
 
     /**
-     * 识别本地图片表格数据到一个List中(调用百度云表格识别接口)
+     * 识别本地图片表格数据到一个List中
      *
      * @param client      百度云客户端
      * @param filePath    图片路径
@@ -252,7 +331,7 @@ public class AIOCRUtil {
     }
 
     /**
-     * 识别图片表格数据到一个List中(调用百度云表格识别接口)
+     * 识别图片表格数据到一个List中
      *
      * @param client      百度云客户端
      * @param bImage      图像二进制数据
@@ -316,27 +395,13 @@ public class AIOCRUtil {
         return null;
     }
 
-
-    /**
-     * 创建一个腾讯AI开放平台访问客户端对象
-     *
-     * @return
-     */
-    public static TAipOcr createTengXunAipOcrClient() {
-        // 初始化一个TAipOcr
-        TAipOcr aipOcr = new TAipOcr(taipAppId, taipAppKey);
-        aipOcr.setConnectionTimeoutInMillis(30000);//默认连接超时时间,30秒
-        aipOcr.setSocketTimeoutInMillis(300000);//默认读取超时时间,5分钟
-        return aipOcr;
-    }
-
     /**
      * 创建一个百度云访问客户端对象
      *
      * @return
      */
     public static AipOcr createBaiduAipOcrClient() {
-        AipOcr client = new AipOcr(baipAppId, baipAppKey, baipSecretKey);
+        AipOcr client = new AipOcr(appId, appKey, secretKey);
         // 可选：设置网络连接参数
         client.setConnectionTimeoutInMillis(30000);//默认连接超时时间,30秒
         client.setSocketTimeoutInMillis(300000);//默认读取超时时间,5分钟
@@ -346,44 +411,19 @@ public class AIOCRUtil {
         return client;
     }
 
-    /**
-     * 从配置文件中获取参数：腾讯AI开放平台应用ID
-     */
-    @Value("${ocr.taip.app_id}")
-    public void setTaipAppId(String appId) {
-        taipAppId = appId;
-    }
-
-    /**
-     * 从配置文件中获取参数：腾讯AI开放平台应用KEY
-     */
-    @Value("${ocr.taip.app_key}")
-    public void setTaipAppKey(String appKey) {
-        taipAppKey = appKey;
-    }
-
-    /**
-     * 从配置文件中获取参数：百度云APP_ID
-     */
     @Value("${ocr.baip.app_id}")
-    public void setBaipAppId(String appId) {
-        baipAppId = appId;
+    public void setAppId(String appId) {
+        BaiduOCRUtil.appId = appId;
     }
 
-    /**
-     * 从配置文件中获取参数：百度云APP_KEY
-     */
     @Value("${ocr.baip.app_key}")
-    public void setBaipAppKey(String appKey) {
-        baipAppKey = appKey;
+    public void setAppKey(String appKey) {
+        BaiduOCRUtil.appKey = appKey;
     }
 
-    /**
-     * 从配置文件中获取参数：百度云SECRET_ID
-     */
     @Value("${ocr.baip.secret_key}")
-    public void setBaipSecretKey(String secretKey) {
-        baipSecretKey = secretKey;
+    public void setSecretKey(String secretKey) {
+        BaiduOCRUtil.secretKey = secretKey;
     }
 
     /**
@@ -392,9 +432,9 @@ public class AIOCRUtil {
     @Value("${ocr.download_dir}")
     public void setDownloadDir(String dir) {
         if (FileUtil.mkdir(dir) != null) {
-            downloadDir = dir;
+            BaiduOCRUtil.downloadDir = dir;
         } else {
-            downloadDir = System.getProperty("java.io.tmpdir");
+            BaiduOCRUtil.downloadDir = System.getProperty("java.io.tmpdir");
         }
     }
 }

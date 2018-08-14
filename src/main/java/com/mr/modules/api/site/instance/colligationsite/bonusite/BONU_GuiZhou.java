@@ -11,12 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /***
  * 贵州统计局
@@ -30,31 +27,26 @@ public class BONU_GuiZhou extends SiteTaskExtend_CollgationSite {
     @Override
     protected String execute() throws Throwable {
         log.info("开始处理贵州统计局-失信企业信息");
-        WebClient webClient = createWebClient(null,null);
-        Map pageInfoMap1 = new HashMap();
-        pageInfoMap1.put("url","http://www.gzstjj.gov.cn/rdzt/tjssxqygs/sxqyxx/201806/t20180607_3290357.html");
-        pageInfoMap1.put("publishDate","2018-06-07");
-        Map pageInfoMap2 = new HashMap();
-        pageInfoMap2.put("url","http://www.gzstjj.gov.cn/rdzt/tjssxqygs/sxqyxx/201708/t20170825_2798633.html");
-        pageInfoMap2.put("publishDate","2017-08-25");
-        Map pageInfoMap3 = new HashMap();
-        pageInfoMap3.put("url","http://www.gzstjj.gov.cn/rdzt/tjssxqygs/sxqyxx/201708/t20170825_2798630.html");
-        pageInfoMap3.put("publishDate","2017-08-25");
-        Map pageInfoMap4 = new HashMap();
-        pageInfoMap4.put("url","http://www.gzstjj.gov.cn/rdzt/tjssxqygs/sxqyxx/201708/t20170825_2798632.html");
-        pageInfoMap4.put("publishDate","2017-08-25");
-
-        List<Map> mapList = new ArrayList();
-        mapList.add(pageInfoMap1);
-        mapList.add(pageInfoMap2);
-        mapList.add(pageInfoMap3);
-        mapList.add(pageInfoMap4);
-        int i=0;
-        for(Map map : mapList){
-            String reqUrl = (String)map.get("url");
-            String publishDate = (String)map.get("publishDate");
+        WebClient webClient = getWebClient();
+        webClient.getOptions().setJavaScriptEnabled(true);
+        String mainUrl = "http://www.gzstjj.gov.cn/rdzt/tjssxqygs/sxqyxx/";
+        HtmlPage mainPage = webClient.getPage(mainUrl);
+        //  //div[@class='ul_ny_title1']
+        List divList = mainPage.getByXPath("/html/body/div[1]/div/div/div[2]/div[2]/div/div/table/tbody/tr/td[2]/div");
+        HtmlDivision division = (HtmlDivision)divList.get(0);
+        List ulList = division.getElementsByTagName("ul");
+        HtmlUnorderedList ul = (HtmlUnorderedList)ulList.get(0);
+        List liList = ul.getElementsByTagName("li");
+        for(int i=0;i<liList.size();i++){
+            HtmlListItem li = (HtmlListItem)liList.get(i);
+            HtmlElement spanElement = li.getElementsByTagName("span").get(0);
+            String href = spanElement.getElementsByTagName("a").get(0).getAttribute("href");
+            href = href.substring(href.indexOf(".")+2);
+            String title = spanElement.getElementsByTagName("a").get(0).getTextContent();
+            String publishDate = li.getElementsByTagName("span").get(1).getTextContent();
+            String reqUrl = mainUrl+href;
+            webClient.getOptions().setJavaScriptEnabled(false);
             HtmlPage page = webClient.getPage(reqUrl);
-            String title = page.getTitleText();
             List contentDivList = page.getByXPath("//div[@style='font-size:14px;width:920px;']");
             HtmlDivision div = (HtmlDivision)contentDivList.get(0);
             String htmlContent = Jsoup.parse(div.asXml()).html();
@@ -63,6 +55,7 @@ public class BONU_GuiZhou extends SiteTaskExtend_CollgationSite {
             String textContent = table.getTextContent();
             String filePath = OCRUtil.DOWNLOAD_DIR + File.separator  +"bonu_guiZhou"+File.separator+ MD5Util.encode(reqUrl);
             String nameTail = publishDate.replace("-","");
+
             //下载文件
             saveFile(page,title+nameTail+".html",filePath);
 
@@ -73,6 +66,7 @@ public class BONU_GuiZhou extends SiteTaskExtend_CollgationSite {
             DomNodeList domNodeList = table.getElementsByTagName("tr");
             String entName = "";
             String code1 = "";
+            String judgeDate = "";
             String judgeAuth = "";
             String frName = "";
             for(int j=0;j<domNodeList.size();j++){
@@ -92,7 +86,7 @@ public class BONU_GuiZhou extends SiteTaskExtend_CollgationSite {
             AdminPunish adminPunish = new AdminPunish();
             adminPunish.setSource("贵州省统计局");
             adminPunish.setSubject("统计上严重失信企业信息");
-            adminPunish.setUniqueKey(reqUrl+"@"+entName+"@"+(i++)+"@"+publishDate);
+            adminPunish.setUniqueKey(reqUrl+"@"+entName+"@"+i+"@"+publishDate);
             adminPunish.setUrl(reqUrl);
             adminPunish.setEnterpriseCode1(code1);
             adminPunish.setObjectType("01");
@@ -106,9 +100,8 @@ public class BONU_GuiZhou extends SiteTaskExtend_CollgationSite {
             if(adminPunishMapper.selectByUrl(reqUrl,entName,frName,null,judgeAuth).size()==0){
                 adminPunishMapper.insert(adminPunish);
             }
+
         }
-
-
         webClient.close();
         log.info("结束处理贵州统计局-失信企业信息");
         return "";
@@ -132,5 +125,15 @@ public class BONU_GuiZhou extends SiteTaskExtend_CollgationSite {
         if(scrapyDataMapper.selectCountByUrl(url)==0){
             scrapyDataMapper.insert(scrapyData);
         }
+    }
+
+
+    public WebClient getWebClient(){
+        WebClient webClient = new WebClient();
+        webClient.getOptions().setJavaScriptEnabled(false);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setUseInsecureSSL(true);
+        webClient.getOptions().setThrowExceptionOnScriptError(false);
+        return  webClient;
     }
 }
