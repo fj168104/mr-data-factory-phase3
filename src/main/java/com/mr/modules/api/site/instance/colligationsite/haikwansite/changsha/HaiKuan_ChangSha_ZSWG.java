@@ -100,7 +100,7 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replace("﹝","[").replace("﹞","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[机,缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[查,郴,机,缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -214,12 +214,11 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replace("﹝","[").replace("﹞","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[机,缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[查,郴,机,缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
         }
-
         text = text.replace("证件号码：营业执照，","营业执照：");
         text = text.replaceAll("[：]+[\\s]{1,}","：");
         text = text.replaceAll("[\\s]{1,}","，");
