@@ -1,5 +1,6 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.xiamen;
 
+import com.mr.framework.core.util.StrUtil;
 import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
@@ -102,7 +103,7 @@ public class HaiKuan_XiaMen_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
                     adminPunish.setPersonName(strArr[1]);
                 }
             }
-            if(!str.contains("：")&&(str.contains("关法")||str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
+            if(StrUtil.isEmpty(adminPunish.getJudgeNo()) && !str.contains("：")&&(str.contains("关法")||str.contains("知字")||str.contains("罚字")||str.contains("违字"))&&str.contains("号")){
                 adminPunish.setJudgeNo(str);
             }
             if(!str.contains("：")&&(str.contains("统一社会信用代码"))){
