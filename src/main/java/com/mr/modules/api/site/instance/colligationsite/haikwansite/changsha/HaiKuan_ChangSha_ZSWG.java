@@ -54,7 +54,6 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
     //提取Web结构化数据
     @Override
     public void extractWebData(Map<String,String> map){
-        //实体标识 计数
         String text = map.get("text");
         AdminPunish adminPunish = new AdminPunish();
         adminPunish.setUrl(map.get("sourceUrl").toString());
@@ -74,40 +73,34 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replace(")","）");
         text = text.replaceAll("\\][\\s]{1,}","]");
 
-        //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号
-        /*Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[知][\\s]{0,}[罚,公,处][\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[号]");
-        Matcher matcher = pattern.matcher(text);
-        if(matcher.find()){
-            adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
-        }*/
-
+        text = text.replaceAll("当[\\s]{1,}事[\\s]{1,}人","当事人");
         text = text.replace("当事人名称：","当事人：");
         text = text.replace("姓名：","当事人：");
         text = text.replace("当事人姓名/名称：","当事人：");
-        text = text.replace("当事人","当事人：");
         text = text.replace("：营业执照","：");
         text = text.replace("湘 关 机 缉违字","湘关机缉违字");
         text = text.replace("统一社会信用代码","，统一社会信用代码");
         text = text.replace("统一社会信用代码为","，统一社会信用代码：");
-        text = text.replace("法定代表人为","，法定代表人：");
-        text = text.replace("法定代表人","，法定代表人：");
         text = text.replace("海关注册编码","，海关注册编码");
+        text = text.replace("衡阳电科 电源有限公司","衡阳电科电源有限公司");
+        text = text.replace("长沙瑞良电子 有限公司","长沙瑞良电子有限公司");
+        text = text.replace("安石国际贸易 有限公司","安石国际贸易有限公司");
 
         text = text.replace("91430100 675573106J","91430100675573106J");
         text = text.replace("9 14301 1159547460XH","9143011159547460XH");
 
-        text = text.replaceAll("当[\\s]{1,}事[\\s]{1,}人","当事人");
+
         text = text.replaceAll("[，]+","，");
         text = text.replace(";","，");
         text = text.replace("；","，");
         text = text.replace("：，","：");
         text = text.replace("，：","：");
         text = text.replace(":","：");
-        text = text.replace("〔","[");
-        text = text.replace("〕","]");
+        text = text.replace("〔","[").replace("〕","]");
+        text = text.replace("﹝","[").replace("﹞","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\s]{0,}[0-9][\\s]{0,}[\\s]{0,}[0-9][\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[机,缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -134,19 +127,26 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                     adminPunish.setPersonName(strArr[1]);
                     adminPunish.setObjectType("01");
                 }
-                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照"))){
+                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照"))&&"".equals(adminPunish.getEnterpriseCode1())){
                     adminPunish.setEnterpriseCode1(strArr[1]);
                 }
-                if(strArr.length>=2&&(strArr[0].contains("代表人")||strArr[0].contains("法人代表"))){
+                if(strArr.length>=2&&(strArr[0].contains("代表人")||strArr[0].contains("法人代表"))&&"".equals(adminPunish.getPersonName())){
                     adminPunish.setPersonName(strArr[1]);
                 }
-                if(strArr.length>=2&&strArr[0].contains("身份证号码")){
+                if(strArr.length>=2&&strArr[0].contains("身份证号码")&&"".equals(adminPunish.getPersonId())){
                     adminPunish.setPersonId(strArr[1]);
                 }
 
                 if(adminPunish.getEnterpriseName().equals("")&&str.contains("发布主题")&&str.contains("公司")&&str.contains("海关关于")){
                     adminPunish.setEnterpriseName(strArr[1].replaceAll(".*关于","").replaceAll("公司.*","公司"));
                 }
+                if(str.contains("发布主题")&&strArr[1].contains("海关关于")){
+                    adminPunish.setJudgeAuth(strArr[1].replaceAll("关于.*",""));
+                }
+            }
+
+            if(str.startsWith("当事人")&&str.endsWith("公司")&&adminPunish.getEnterpriseName().equals("")&&!str.contains("：")){
+                adminPunish.setEnterpriseName(str.replace("当事人",""));
             }
         }
         if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
@@ -189,40 +189,32 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
         text = text.replace(")","）");
         text = text.replaceAll("\\][\\s]{1,}","]");
 
-        //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号
-        /*Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[知][\\s]{0,}[罚,公,处][\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[号]");
-        Matcher matcher = pattern.matcher(text);
-        if(matcher.find()){
-            adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
-        }*/
-
+        text = text.replaceAll("当[\\s]{1,}事[\\s]{1,}人","当事人");
         text = text.replace("当事人名称：","当事人：");
         text = text.replace("姓名：","当事人：");
         text = text.replace("当事人姓名/名称：","当事人：");
-        text = text.replace("当事人","当事人：");
         text = text.replace("：营业执照","：");
         text = text.replace("湘 关 机 缉违字","湘关机缉违字");
         text = text.replace("统一社会信用代码","，统一社会信用代码");
         text = text.replace("统一社会信用代码为","，统一社会信用代码：");
-        text = text.replace("法定代表人为","，法定代表人：");
-        text = text.replace("法定代表人","，法定代表人：");
         text = text.replace("海关注册编码","，海关注册编码");
+        text = text.replace("衡阳电科 电源有限公司","衡阳电科电源有限公司");
 
         text = text.replace("91430100 675573106J","91430100675573106J");
         text = text.replace("9 14301 1159547460XH","9143011159547460XH");
 
-        text = text.replaceAll("当[\\s]{1,}事[\\s]{1,}人","当事人");
+
         text = text.replaceAll("[，]+","，");
         text = text.replace(";","，");
         text = text.replace("；","，");
         text = text.replace("：，","：");
         text = text.replace("，：","：");
         text = text.replace(":","：");
-        text = text.replace("〔","[");
-        text = text.replace("〕","]");
+        text = text.replace("〔","[").replace("〕","]");
+        text = text.replace("﹝","[").replace("﹞","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\s]{0,}[0-9][\\s]{0,}[\\s]{0,}[0-9][\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关][\\s]{0,}[机,缉,违,罚,公,处]{1,}[\\s]{0,}[字][\\s]{0,}\\[[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}\\][\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -249,19 +241,26 @@ public class HaiKuan_ChangSha_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
                     adminPunish.setPersonName(strArr[1]);
                     adminPunish.setObjectType("01");
                 }
-                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照"))){
+                if(strArr.length>=2&&(strArr[0].contains("社会信用代码")||strArr[0].contains("营业执照"))&&"".equals(adminPunish.getEnterpriseCode1())){
                     adminPunish.setEnterpriseCode1(strArr[1]);
                 }
-                if(strArr.length>=2&&(strArr[0].contains("代表人")||strArr[0].contains("法人代表"))){
+                if(strArr.length>=2&&(strArr[0].contains("代表人")||strArr[0].contains("法人代表"))&&"".equals(adminPunish.getPersonName())){
                     adminPunish.setPersonName(strArr[1]);
                 }
-                if(strArr.length>=2&&strArr[0].contains("身份证号码")){
+                if(strArr.length>=2&&strArr[0].contains("身份证号码")&&"".equals(adminPunish.getPersonId())){
                     adminPunish.setPersonId(strArr[1]);
                 }
 
                 if(adminPunish.getEnterpriseName().equals("")&&str.contains("发布主题")&&str.contains("公司")&&str.contains("海关关于")){
                     adminPunish.setEnterpriseName(strArr[1].replaceAll(".*关于","").replaceAll("公司.*","公司"));
                 }
+                if(str.contains("发布主题")&&strArr[1].contains("海关关于")){
+                    adminPunish.setJudgeAuth(strArr[1].replaceAll("关于.*",""));
+                }
+            }
+
+            if(str.startsWith("当事人")&&str.endsWith("公司")&&adminPunish.getEnterpriseName().equals("")&&!str.contains("：")){
+                adminPunish.setEnterpriseName(str.replace("当事人",""));
             }
         }
         if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
