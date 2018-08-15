@@ -1,20 +1,16 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.hefei;
 
 import com.mr.common.OCRUtil;
-import com.mr.framework.ocr.OcrUtils;
 import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
 import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
-import com.mr.modules.api.site.instance.colligationsite.util.OcrUtilsSub;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +26,6 @@ import java.util.regex.Pattern;
 @Scope("prototype")
 @Component("haikuan_hefei_zswg")
 public class HaiKuan_HeFei_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
-    OcrUtilsSub ocrUtilsSub = new OcrUtilsSub();
     @Autowired
     OCRUtil ocrUtil;
     @Autowired
