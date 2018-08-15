@@ -2,7 +2,6 @@ package com.mr.common.util;
 
 import com.baidu.aip.ocr.AipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mr.common.OCRUtil;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
@@ -26,6 +25,9 @@ import java.util.Map;
 
 /**
  * 百度云OCR工具类
+ *
+ * 支持图片格式：PNG、JPG、JPEG、BMP
+ * 其他限制：图片经过base64编码后大小不超过4M，最短边至少15px，最长边最大4096px
  *
  * @author pxu 2018/8/13 18:58
  */
