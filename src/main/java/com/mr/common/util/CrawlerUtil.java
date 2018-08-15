@@ -80,7 +80,7 @@ public class CrawlerUtil {
         // 是否使用不安全的SSL
         wc.getOptions().setUseInsecureSSL(true);
         // 启用JS解释器，默认为true
-        wc.getOptions().setJavaScriptEnabled(false);
+        wc.getOptions().setJavaScriptEnabled(true);
         // 禁用CSS
         wc.getOptions().setCssEnabled(false);
         // js运行错误时，是否抛出异常
