@@ -155,6 +155,8 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                             extractXlsData(mapAttr);
                         }else if(attachmentName.contains(".pdf")){//2.4 附件pdf解析
                             extractPdfData(mapAttr);
+                        }else if(attachmentName.contains(".txt")){//2.4 附件Txt解析
+                            extractTxtData(mapAttr);
                         }else {//2.5一般为各种类型图片
                             extractImgData(mapAttr);
                         }
@@ -351,6 +353,13 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
      * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
      */
     public void extractDocData(Map<String,String> map){
+
+    }
+    /**
+     * 提取网页中附件为：Txt文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractTxtData(Map<String,String> map){
 
     }
     /**
