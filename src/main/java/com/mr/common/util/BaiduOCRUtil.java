@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
+import com.mr.framework.ocr.OcrUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +25,9 @@ import java.util.Map;
 
 /**
  * 百度云OCR工具类
+ *
+ * 支持图片格式：PNG、JPG、JPEG、BMP
+ * 其他限制：图片经过base64编码后大小不超过4M，最短边至少15px，最长边最大4096px
  *
  * @author pxu 2018/8/13 18:58
  */
@@ -147,16 +151,28 @@ public class BaiduOCRUtil {
      * 识别本地图片文件上的文本内容（通用OCR识别服务）
      *
      * @param filePath filePath 图片文件路径
+     * @param separator 解析行分隔符
      * @return 返回单个图片识别结果内容
      */
-    public static String getTextStrFromImageFile(String filePath) {
+    public static String getTextStrFromImageFile(String filePath, String separator) {
         List<String> list = getTextFromImageFile(createBaiduAipOcrClient(), filePath);
         StringBuilder sb = new StringBuilder();
         for (String s : list) {
-            sb.append(s);
+            sb.append(s + separator);
         }
         return sb.toString();
     }
+
+    /**
+     * 识别本地图片文件上的文本内容（通用OCR识别服务）
+     *
+     * @param filePath filePath 图片文件路径
+     * @return 返回单个图片识别结果内容
+     */
+    public static String getTextStrFromImageFile(String filePath) {
+        return getTextStrFromImageFile(filePath, " ");
+    }
+
 
     /**
      * 识别本地图片文件上的文本内容（通用OCR识别服务）
@@ -393,6 +409,41 @@ public class BaiduOCRUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * 解析PDF
+     * @return
+     * @throws Exception
+     */
+    public static String getTextStrFromPDFFile(String filePath, String attachmentName) throws Exception {
+        return getTextStrFromPDFFile(filePath, attachmentName, " ");
+    }
+
+    /**
+     * 解析PDF
+     * @return
+     * @throws Exception
+     */
+    public static String getTextStrFromPDFFile(String filePath, String attachmentName, String separator) throws Exception {
+        //将pdf转换为图片
+        OcrUtils ocrUtil = new OcrUtils(filePath);
+        String dirFile =ocrUtil.image2Dir(attachmentName, false);
+
+        File testDataDir = new File(dirFile);
+        //listFiles()方法是返回某个目录下所有文件和目录的绝对路径，返回的是File数组
+        File[] files = testDataDir.listFiles();
+        int imgCount = files.length;
+//		log.info("tessdata目录下共有 " + imgCount + " 个文件/文件夹");
+        //解析image
+        StringBuilder sbs = new StringBuilder();
+        for (int i = imgCount - 1; i >= 0; i--) {
+            sbs.append(getTextStrFromImageFile(files[i].getAbsolutePath(), separator));
+        }
+        //删除文件夹 dirName
+        FileUtil.del(dirFile);
+
+        return sbs.toString();
     }
 
     /**
