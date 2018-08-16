@@ -26,7 +26,7 @@ import java.util.List;
  * @author pxu 2018/08/15
  */
 @Slf4j
-@Component("bonu_beiJing")
+@Component("bonu_beijing")
 @Scope("prototype")
 public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
     private String source = "国统局（北京）";
