@@ -84,6 +84,7 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         text = text.replace("编号：","");
 
         text = text.replaceAll("[，]+","，");
+        text = text.replace(",","，");
         text = text.replace(";","，");
         text = text.replace("；","，");
         text = text.replace("：，","：");
@@ -94,7 +95,7 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         text = text.replace("【","[").replace("】","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公处,行,简,易,决]{0,}[\\s]{0,}[字][\\s]{0,}[(]{0,}[\\[]{0,}[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\]]{0,}[)]{0,}[\\s]{0,}[第]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公处,行,简,易,决]{0,}[\\s]{0,}[字][\\s]{0,}[(]{0,}[\\[]{0,}[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\]]{0,}[)]{0,}[\\s]{0,}[第]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -148,6 +149,9 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
             }
             if(adminPunish.getEnterpriseName().equals("")&&str.endsWith("公司")){
                 adminPunish.setEnterpriseName(str);
+            }
+            if(adminPunish.getJudgeNo().contains("关")&&adminPunish.getJudgeNo().contains("字")&&adminPunish.getJudgeNo().contains("号")){
+                adminPunish.setJudgeNo(str);
             }
         }
         if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
@@ -204,6 +208,7 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         text = text.replace("编号：","");
 
         text = text.replaceAll("[，]+","，");
+        text = text.replace(",","，");
         text = text.replace(";","，");
         text = text.replace("；","，");
         text = text.replace("：，","：");
@@ -214,7 +219,7 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         text = text.replace("【","[").replace("】","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公处,行,简,易,决]{0,}[\\s]{0,}[字][\\s]{0,}[(]{0,}[\\[]{0,}[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\]]{0,}[)]{0,}[\\s]{0,}[第]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公处,行,简,易,决]{0,}[\\s]{0,}[字][\\s]{0,}[(]{0,}[\\[]{0,}[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\]]{0,}[)]{0,}[\\s]{0,}[第]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -269,6 +274,10 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
             if(adminPunish.getEnterpriseName().equals("")&&str.endsWith("公司")){
                 adminPunish.setEnterpriseName(str);
             }
+
+            if(adminPunish.getJudgeNo().contains("关")&&adminPunish.getJudgeNo().contains("字")&&adminPunish.getJudgeNo().contains("号")){
+                adminPunish.setJudgeNo(str);
+            }
         }
         if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
             adminPunish.setObjectType("01");
@@ -322,6 +331,7 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         text = text.replace("编号：","");
 
         text = text.replaceAll("[，]+","，");
+        text = text.replace(",","，");
         text = text.replace(";","，");
         text = text.replace("；","，");
         text = text.replace("：，","：");
@@ -332,7 +342,7 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         text = text.replace("【","[").replace("】","]");
 
         //[\u4e00-\u9fa5] TODO 匹配中文 提取文号编号   关缉违字
-        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[行,复,检,查,知,郴,机,缉,违,罚,公处,行,简,易,决]{0,}[\\s]{0,}[字][\\s]{0,}[(]{0,}[\\[]{0,}[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\]]{0,}[)]{0,}[\\s]{0,}[第]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]+[\\s]{0,}[关,洲][\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公,处,行,简,易,决]{0,}[\\s]{0,}[组,词,行,复,检,查,知,郴,机,缉,违,罚,公处,行,简,易,决]{0,}[\\s]{0,}[字][\\s]{0,}[(]{0,}[\\[]{0,}[\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[0-9][\\s]{0,}[\\]]{0,}[)]{0,}[\\s]{0,}[第]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[0-9]{0,}[\\s]{0,}[\\s]{0,}[-]{0,}[0-9]{0,}[\\s]{0,}[号]");
         Matcher matcher = pattern.matcher(text);
         if(matcher.find()){
             adminPunish.setJudgeNo(matcher.group().replaceAll("[\\s]{1,}",""));
@@ -386,6 +396,9 @@ public class HaiKuan_TaiYuan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
             }
             if(adminPunish.getEnterpriseName().equals("")&&str.endsWith("公司")){
                 adminPunish.setEnterpriseName(str);
+            }
+            if(adminPunish.getJudgeNo().contains("关")&&adminPunish.getJudgeNo().contains("字")&&adminPunish.getJudgeNo().contains("号")){
+                adminPunish.setJudgeNo(str);
             }
         }
         if(adminPunish.getEnterpriseName().equals("")&&!adminPunish.getPersonName().equals("")){
