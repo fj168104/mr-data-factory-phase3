@@ -195,6 +195,32 @@ public class OCRUtil {
 		return ocrUtils.readPdf(file);
 	}
 
+	/**
+	 * 将txt转换为String
+	 * @param filePathAbsolute 文件全路径
+	 * @return
+	 * @throws
+	 */
+	public  String getTextFromTxt(String filePathAbsolute){
+		StringBuffer fileContent = new StringBuffer(""); //文档内容
+		try {
+			File f = new File(filePathAbsolute);
+			if(f.isFile()&&f.exists()) {
+				InputStreamReader read = new InputStreamReader(new FileInputStream(f),"gbk");
+				BufferedReader reader=new BufferedReader(read);
+				String line;
+				while ((line = reader.readLine()) != null) {
+					fileContent.append(line).append("\n");
+				}
+				read.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fileContent.toString();
+
+	}
+
 	public static void main(String[] args) {
 		try {
 			OCRUtil ocrUtil = new OCRUtil();

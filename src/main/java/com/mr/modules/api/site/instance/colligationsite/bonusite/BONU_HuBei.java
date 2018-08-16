@@ -21,7 +21,7 @@ import java.util.List;
  * 提取：TODO 违规主体名称 发布日期  查处机构,行政处罚文书文号
  * */
 @Slf4j
-@Component("bonu_huBei")
+@Component("bonu_hubei")
 @Scope("prototype")
 public class BONU_HuBei extends SiteTaskExtend_CollgationSite {
     @Override

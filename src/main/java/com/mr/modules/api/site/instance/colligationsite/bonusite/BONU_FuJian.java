@@ -21,7 +21,7 @@ import java.util.List;
  * 提取：TODO 违规主体名称 发布日期  查处机构,行政处罚文书文号
  * */
 @Slf4j
-@Component("bonu_fuJian")
+@Component("bonu_fujian")
 @Scope("prototype")
 public class BONU_FuJian extends SiteTaskExtend_CollgationSite {
 

@@ -27,7 +27,7 @@ import java.util.*;
 public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_CollgationSite{
     int sizePage = 1;
     int nextPagesize = 0;//用于判断递归次数
-    //listMap用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+    //listMap用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl,html(正文带格式)
     List<Map<String,String>> listMap = new ArrayList<>();
     /**
      * 提取正文
@@ -78,6 +78,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 for(HtmlElement htmlElementList : htmlElements){
                     List<HtmlElement> htmlElementLiList = htmlElementList.getElementsByTagName("li");
                     for(HtmlElement htmlElementLi : htmlElementLiList){
+                        String htmlText = "";
                         //创建Map，用于存储需要返回的对象属性
                         Map<String ,String > mapAttr = new HashMap<>();
                         //获取详情连接
@@ -125,6 +126,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                                 attachmentName  = map.get("attachmentName").toString();
                                 nextPageFlag = (boolean)map.get("nextPageFlag");
                                 text = map.get("text").toString();
+                                htmlText = map.get("html").toString();
                             }
 
 
@@ -140,6 +142,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         mapAttr.put("publishDate",publishDate);
                         mapAttr.put("attachmentName",attachmentName);
                         mapAttr.put("filePath",hashKeyFilePath);
+                        mapAttr.put("html",htmlText);
                         /**
                          * 第二步操作，结构化入库
                          */
@@ -152,6 +155,8 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                             extractXlsData(mapAttr);
                         }else if(attachmentName.contains(".pdf")){//2.4 附件pdf解析
                             extractPdfData(mapAttr);
+                        }else if(attachmentName.contains(".txt")){//2.4 附件Txt解析
+                            extractTxtData(mapAttr);
                         }else {//2.5一般为各种类型图片
                             extractImgData(mapAttr);
                         }
@@ -213,12 +218,13 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         boolean nextPageFlag = true;
         String attachmentName = "";
         String attachmentType = "";
+        String htmlText = "";
         List<HtmlElement> htmlElements = htmlPage.getByXPath("//div[@class='easysite-news-text']");
         if(htmlElements.size()>0){
             HtmlElement htmlElement = htmlElements.get(0);
             //1.获取详情子页面
             Document htmlTextDoc = Jsoup.parse("<p>发布主题："+titleName+"</p>"+"<p>发布时间："+publishDate+"</p>"+htmlElement.asXml());
-            String htmlText = htmlTextDoc.html();
+            htmlText = htmlTextDoc.html();
             text  = htmlTextDoc.text();
             //2.获取附件所在的标签
             List<HtmlElement> htmlElementAList = htmlElement.getElementsByTagName("a");
@@ -317,6 +323,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         map.put("text",text);
         map.put("attachmentName",attachmentName);
         map.put("nextPageFlag",nextPageFlag);
+        map.put("html",htmlText);
         return map;
     }
     /**
@@ -346,6 +353,13 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
      * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
      */
     public void extractDocData(Map<String,String> map){
+
+    }
+    /**
+     * 提取网页中附件为：Txt文本
+     * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+     */
+    public void extractTxtData(Map<String,String> map){
 
     }
     /**
