@@ -172,7 +172,7 @@ public class OCRUtil {
 	 * @param pdfName
 	 */
 	public void pdf2image(String pdfName) {
-		ocrUtils.pdf2image(pdfName);
+		ocrUtils.pdf2image(pdfName, false);
 	}
 
 	/**
