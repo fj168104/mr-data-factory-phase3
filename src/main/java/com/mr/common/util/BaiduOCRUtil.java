@@ -447,6 +447,47 @@ public class BaiduOCRUtil {
     }
 
     /**
+     * 解析TIF
+     * @return
+     * @throws Exception
+     */
+    public static String getTextStrFromTIFFile(String filePath, String attachmentName) throws Exception {
+        return getTextStrFromTIFFile(filePath, attachmentName, " ");
+    }
+
+    /**
+     * 解析TIF
+     * @return
+     * @throws Exception
+     */
+    public static String getTextStrFromTIFFile(String filePath, String attachmentName, String separator) {
+        //将tif转换为jpg图片
+        String entirePathName = filePath + File.separator + attachmentName;
+        String[] dirs = attachmentName.split("\\.");
+        File dirFile = new File(filePath + File.separator + dirs[0]);
+        FileUtil.mkdir(dirFile);
+        FileUtil.copy(entirePathName, dirFile + File.separator + attachmentName, true);
+        ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
+        FileUtil.del(dirFile + File.separator + attachmentName);
+
+        //ocr 识别 jpg
+        File testDataDir = new File(dirFile.getAbsolutePath());
+        //listFiles()方法是返回某个目录下所有文件和目录的绝对路径，返回的是File数组
+        File[] files = testDataDir.listFiles();
+        int imgCount = files.length;
+//		log.info("tessdata目录下共有 " + imgCount + " 个文件/文件夹");
+        //解析image
+        StringBuilder sbs = new StringBuilder();
+        for (int i = imgCount - 1; i >= 0; i--) {
+            sbs.append(getTextStrFromImageFile(files[i].getAbsolutePath(), separator));
+        }
+        //删除文件夹 dirName
+        FileUtil.del(dirFile);
+
+        return sbs.toString();
+    }
+
+    /**
      * 创建一个百度云访问客户端对象
      *
      * @return
