@@ -5,8 +5,12 @@ package com.mr.common.util;
 import com.sun.media.jai.codec.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.*;
@@ -24,12 +28,57 @@ import java.util.List;
 
 @Slf4j
 public class ImageForematConvert {
+
     /**
+     * 图片全路径
+     * @param fileAbsolutePath
+     */
+    public static List<String>  tif2Jpg(String fileAbsolutePath) {
+        List<String> fileAllNameList = new ArrayList<>();
+        ImageInputStream input;
+        try {
+            input = ImageIO.createImageInputStream(new File(fileAbsolutePath));//以图片输入流形式读取到tif
+            // Get the reader
+            ImageReader reader = ImageIO.getImageReaders(input).next();//获得image阅读器，阅读对象为tif文件转换的流
+            String filePath =fileAbsolutePath.substring(0, fileAbsolutePath.lastIndexOf("."));
+
+            try {
+                reader.setInput(input);
+                // Read page 2 of the TIFF file
+                int count = reader.getNumImages(true);//tif文件页数
+                //System.out.println(count);
+                for(int i = 0; i < count; i++){
+                    BufferedImage image = reader.read(i, null);//取得第i页
+                    String filePathSub = filePath+"_"+i+".jpg";
+                    File f = new File(filePathSub);
+                    try {
+                        if(!f.exists()){
+                            f.getParentFile().mkdirs();
+                            f.createNewFile();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageIO.write(image, "JPEG", f);//保存图片
+                    fileAllNameList.add(filePathSub);
+                }
+            }
+            finally {
+                reader.dispose();
+                input.close();
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileAllNameList;
+    }
+    /**
+     * 此方法存在一个问题，如果文本直接转换为tiff格式的图片，识别不了
      * 图片全路径
      * @param fileAbsolutePath
      * @return
      */
-    public static List<String>  tif2Jpg(String fileAbsolutePath) {
+    public static List<String>  tif2JpgOld(String fileAbsolutePath) {
         List<String> fileAllNameList = new ArrayList<>();
         if (fileAbsolutePath == null || "".equals(fileAbsolutePath.trim())){
             return fileAllNameList;
@@ -113,8 +162,11 @@ public class ImageForematConvert {
     }
 
     public static void main(String args[]) throws Exception{
+        for(String str:tif2Jpg("C:\\Users\\Space\\Desktop\\（凭关缉罚字〔2018〕0061号）凭祥市达星贸易有限公司.tiff")){
+            log.info("--------------"+str);
+        }
         /* tif 转 jpg 格式*/
-        tif2Jpg("F:\\20171010微策战团\\other\\江哥\\微策架构.tif");
+        //tif2Jpg("C:\\Users\\Space\\Desktop\\（凭关缉罚字〔2018〕0061号）凭祥市达星贸易有限公司.tiff");
         /* jpg 转 tif 格式*/
         //imageConvert.jpg2Tif("F:\\20171010微策战团\\other\\江哥\\微策架构.jpg");
     }
