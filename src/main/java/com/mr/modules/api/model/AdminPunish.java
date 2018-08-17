@@ -1,10 +1,13 @@
 package com.mr.modules.api.model;
 
 import com.mr.common.base.model.BaseEntity;
+import lombok.ToString;
+
 import java.util.Date;
 import javax.persistence.*;
 
 @Table(name = "admin_punish")
+@ToString
 public class AdminPunish extends BaseEntity {
     /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
