@@ -95,9 +95,9 @@ public class HaiKuan_XiaMen_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
         text = text.replace("，：","：");
         text = text.replace(":","：");
         text = text.replace("，事人","，当事人");
-		text = text.replace("，当事、人：","，当事人");
-		text = text.replace("，当导人：","，当事人");
-		text = text.replace("，当手人：","，当事人");
+		text = text.replace("，当事、人：","，当事人：");
+		text = text.replace("，当导人：","，当事人：");
+		text = text.replace("，当手人：","，当事人：");
 
         String[] textArr = text.split("，");
         adminPunish.setPunishReason(text);

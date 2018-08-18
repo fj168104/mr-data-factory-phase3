@@ -55,7 +55,15 @@ public class HaiKuan_TianJin_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
 		String titleText = map.get("text");
 		String bodyText = "";
 		try {
-			bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
+			if(attachmentName.contains("2.jpg")){
+				String bodyText2 = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
+				String bodyText1 = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator
+						+ attachmentName.replace("2.jpg", "1.jpg"));
+				bodyText = bodyText1 + " " + bodyText2;
+			}else {
+				bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
