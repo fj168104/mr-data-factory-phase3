@@ -83,7 +83,13 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         Map<String ,String > mapAttr = new HashMap<>();
                         //获取详情连接
                         HtmlElement htmlElementA = htmlElementLi.getElementsByTagName("a").get(0);
-                        String detailUrl = baseUrl+htmlElementA.getAttribute("href");
+                        String detailUrl = "";
+                        if(htmlElementA.getAttribute("href").contains(baseUrl)){
+                            detailUrl = htmlElementA.getAttribute("href");
+                        }else{
+                            detailUrl = baseUrl+htmlElementA.getAttribute("href");
+                        }
+
                         String titleName = htmlElementA.getAttribute("title");
                         //获取发布时间
                         String publishDate = htmlElementLi.getElementsByTagName("span").get(0).asText();
@@ -99,7 +105,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                             /**
                              * 清单列表中直接管理附件的情况，html页面
                              */
-                            if(!detailUrl.contains("html")){
+                            if(!detailUrl.contains("html") && !detailUrl.endsWith("htm")){
                                 //3.创建存储对象
                                 ScrapyData scrapyData = new ScrapyData();
                                 String[] attachmentTypeStr = htmlElementA.getAttribute("href").split("\\.");
@@ -231,6 +237,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
             List<HtmlElement> htmlElementImgList = htmlElement.getElementsByTagName("img");
             //3.创建存储对象
             ScrapyData scrapyData = new ScrapyData();
+            int count = 1;
             if(htmlElementImgList.size()>0){
                 for(HtmlElement htmlElementImg : htmlElementImgList){
                     WebClient webClient = null;
@@ -245,7 +252,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         //下载附件
                         if(attachmentTypeStr.length>1){
                             attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
-                            attachmentName = titleName+"."+attachmentType;
+                            attachmentName = titleName+(count++)+"."+attachmentType;
                             saveFile(page,attachmentName,hashKeyFilePath);
                         }
                         //准备入库操作
@@ -273,7 +280,6 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 for(HtmlElement htmlElementA : htmlElementAList){
                     try {
                         String[] attachmentTypeStr = htmlElementA.getAttribute("href").split("\\.");
-
                         //创建路径
                         String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
                         //下载元素网页
@@ -282,7 +288,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         //下载附件
                         if(attachmentTypeStr.length>1){
                             attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
-                            attachmentName = titleName+"."+attachmentType;
+                            attachmentName = titleName+(count++)+"."+attachmentType;
                             saveFile(page,attachmentName,hashKeyFilePath);
                         }
                         //准备入库操作
