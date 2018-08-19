@@ -1,20 +1,28 @@
 package com.mr.modules.api.site.instance.colligationsite.haikwansite.tianjin;
 
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.mr.common.OCRUtil;
 import com.mr.common.util.BaiduOCRUtil;
-import com.mr.framework.core.util.StrUtil;
 import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.model.AdminPunish;
+import com.mr.modules.api.model.ScrapyData;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
+import com.mr.modules.api.site.instance.boissite.Test2;
+import com.mr.modules.api.site.instance.colligationsite.util.FilenameFilterUtil;
 import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @Auter zjxu
@@ -27,150 +35,220 @@ import java.util.Map;
 @Scope("prototype")
 @Component("haikuan_tianjin_zscq")
 public class HaiKuan_TianJin_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
+
+	private String source = "天津海关";
+	private String subject = "天津海关知识产权行政处罚";
+	private String judgeAuth = "天津海关";
+
 	@Autowired
 	SiteParams siteParams;
-
 	@Override
 	protected String execute() throws Throwable {
 		String ip = "";
 		String port = "";
-		String source = "天津海关知识产权行政处罚";
+		//    String source = "天津海关知识产权行政处罚";
 		String area = "tianjin";//区域为：天津
 		String baseUrl = "http://tianjin.customs.gov.cn";
 		String url = "http://tianjin.customs.gov.cn/tianjin_customs/427875/427916/427918/427913/b6fd3207-1.html";
 		String increaseFlag = siteParams.map.get("increaseFlag");
-		if (increaseFlag == null) {
+		if(increaseFlag==null){
 			increaseFlag = "";
 		}
-		webContext(increaseFlag, baseUrl, url, ip, port, source, area);
+		webContext(increaseFlag,baseUrl,url,ip,port,source,area);
 		return null;
 	}
 
 	@Override
-	public void extractImgData(Map<String, String> map) {
-		String sourceUrl = map.get("sourceUrl");
-		String filePath = map.get("filePath");
-		String publishDate = map.get("publishDate");
-		String attachmentName = map.get("attachmentName");
-		String titleText = map.get("text");
-		String bodyText = "";
-		try {
-			if(attachmentName.contains("2.jpg")){
-				String bodyText2 = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
-				String bodyText1 = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator
-						+ attachmentName.replace("2.jpg", "1.jpg"));
-				bodyText = bodyText1 + " " + bodyText2;
-			}else {
-				bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
-		String text = titleText + " " + bodyText;
-		extractData(sourceUrl, publishDate, text);
+	protected String executeOne() throws Throwable {
+		return super.executeOne();
 	}
 
-	private void extractData(String sourceUrl, String publishDate, String text) {
-		AdminPunish adminPunish = new AdminPunish();
-		adminPunish.setUrl(sourceUrl);
-		adminPunish.setPublishDate(publishDate);
-		adminPunish.setUpdatedAt(new Date());
-		adminPunish.setCreatedAt(new Date());
-		adminPunish.setSubject("天津海关知识产权行政处罚");
-		adminPunish.setSource("天津海关");
 
-		adminPunish.setPunishReason(text);
-		adminPunish.setJudgeAuth("中华人民共和国厦门天津");
-
-		text = text.replace("　", " ");
-		text = text.replace(" ", " ");
-		text = text.replaceAll("([\\s])+：([\\s])+", "：");
-		text = text.replace("。", "，");
-		text = text.replace(",", "，");
-		text = text.replace("(", "（");
-		text = text.replace(")", "）");
-		text = text.replace("全业代码", "企业代码");
-		text = text.replace("字 [", "字[");
-		text = text.replace("] 第 ", "]第");
-		text = text.replace("第 ", "]第");
-		text = text.replace(" 号", "号");
-		text = text.replace("编号：", "");
-		text = text.replace("当事人名称", "当事人");
-		text = text.replace("当事人姓名/名称", "当事人");
-		text = text.replaceAll("地[\\s]+址", "地址");
-		text = text.replaceAll("当[\\s]+事[\\s]+人", "当事人");
-		text = text.replaceAll("([\\s])+", "，");
-		text = text.replaceAll("[，]+", "，");
-		text = text.replace(";", "，");
-		text = text.replace("：，", "：");
-		text = text.replace("，：", "：");
-		text = text.replace(":", "：");
-		text = text.replace("，事人", "，当事人");
-		text = text.replace("，当事、人：", "，当事人：");
-		text = text.replace("，当导人：", "，当事人：");
-		text = text.replace("，当手人：", "，当事人：");
-		text = text.replace("当事，", "当事人：");
-		text = text.replace("当事人，", "当事人：");
-		text = text.replace("当人：", "当事人：");
-		text = text.replace("当半人，", "当事人：");
-		text = text.replace("当申人：", "当事人：");
-		text = text.replace("当事入：", "当事人：");
-		text = text.replace("当写人：", "当事人：");
-		text = text.replace("称：", "当事人：");
-		text = text.replace("法定代表人为", "法定代表人：");
-
-		String[] textArr = text.split("，");
-		adminPunish.setPunishReason(text);
-		adminPunish.setJudgeAuth("中华人民共和国天津海关");
-		for (String str : textArr) {
-			if (str.contains("：")) {
-				String[] strArr = str.split("：");
-
-				if (StrUtil.isEmpty(adminPunish.getEnterpriseName())
-						&& strArr[0].contains("发布主题")
-						&& strArr[1].contains("天津海关关于")
-						&& strArr[1].contains("公司")) {
-					adminPunish.setEnterpriseName(strArr[1].substring(strArr[1].indexOf("天津海关关于") + 6, strArr[1].indexOf("公司") + 2));
-					adminPunish.setObjectType("01");
-				}
-
-				if (StrUtil.isEmpty(adminPunish.getJudgeNo())
-						&& strArr[0].contains("发布主题")
-						&& strArr[1].contains("津关法知字")) {
-					String sTmp = strArr[1].substring(strArr[1].indexOf("津关法知字"));
-					if (sTmp.contains("号")) {
-						adminPunish.setJudgeNo(sTmp.substring(0, sTmp.lastIndexOf("号") + 1));
-					}
-				}
-
-				if (strArr.length >= 2 && strArr[1].length() > 6 && strArr[0].contains("当事人") && StrUtil.isEmpty(adminPunish.getEnterpriseName())) {
-					adminPunish.setEnterpriseName(strArr[1]);
-					adminPunish.setObjectType("01");
-				}
-				if (strArr.length >= 2 && strArr[1].length() <= 6 && strArr[0].contains("当事人") && StrUtil.isEmpty(adminPunish.getPersonName())) {
-					adminPunish.setPersonName(strArr[1]);
-					adminPunish.setObjectType("02");
-				}
-				if (strArr.length >= 2 && (strArr[0].contains("证件号码") || strArr[0].contains("信用代码") || strArr[0].contains("营业执照"))) {
-					adminPunish.setEnterpriseCode1(strArr[1]);
-				}
-				if (strArr.length >= 2 && strArr[0].contains("代表人")) {
-					adminPunish.setPersonName(strArr[1]);
-				}
+	/**
+	 * 提取网页中附件为：img(各种类型的图片)文本
+	 * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
+	 */
+	public void extractImgData(Map<String,String> map){
+		String attchementName = map.get("attachmentName");
+		String tail = map.get("attachmentName").substring(attchementName.indexOf("."));
+		FilenameFilterUtil filenameFilterUtil = new FilenameFilterUtil(tail);
+		String filePath = map.get("filePath");
+		File file = new File(filePath);
+		List attchmentList = new ArrayList();
+		if(file.isDirectory()){
+			File[] files = file.listFiles(filenameFilterUtil);
+			for(File attchmentFile : files){
+				attchmentList.add(attchmentFile.getPath());
 			}
-			if (StrUtil.isEmpty(adminPunish.getJudgeNo()) && !str.contains("：") && (str.contains("关法") || str.contains("知字") || str.contains("罚字") || str.contains("违字")) && str.contains("号")) {
-				adminPunish.setJudgeNo(str);
+		}
+		String resultStr = BaiduOCRUtil.getTextStrFromImageFileList(attchmentList);
+		resultStr = resultStr.replace("号事人:","号当事人:").replace("地北:","地址:");
+		String entName = "";
+		String judgeNo = "";
+		String url = map.get("sourceUrl");
+		try{
+			if(attchementName.contains("关于") && attchementName.contains("侵犯")){
+				entName = attchementName.substring(attchementName.indexOf("关于")+2,attchementName.indexOf("侵犯")-2);
+			}else{
+				String[]  infos = resultStr.split(":");
+				entName =infos[1];
+				if(entName.contains("公司")){
+					entName = entName.substring(0,entName.lastIndexOf("公司")+2);
+				}else if(entName.contains("地址")){
+					entName = entName.substring(0,entName.lastIndexOf("地址"));
+				}
+                /*if(resultStr.contains("当事人:") && resultStr.contains("地址:")){
+                    entName = resultStr.substring(resultStr.indexOf("当事人:")+4,resultStr.indexOf("地址:"));
+                }else{
+                    entName = resultStr.substring(resultStr.indexOf("当事人:")+4,resultStr.indexOf("公司")+2);
+                }*/
 			}
-			if (!str.contains("：") && (str.contains("信用代码"))) {
-				adminPunish.setEnterpriseCode1(str.replaceAll(".*信用代码", ""));
+			if(attchementName.contains("津关法知字")){
+				judgeNo = attchementName.substring(attchementName.indexOf("津关法知字"),attchementName.lastIndexOf("号")+1);
+			}else{
+				judgeNo = resultStr.substring(resultStr.indexOf("字"),resultStr.indexOf("号")+1);
+				judgeNo = "津关法知"+judgeNo;
 			}
-
+		}catch (Exception e){
+			log.error("OCR识别有误："+e.getMessage());
+			log.info("对应的URL为："+url);
 		}
 
-		adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl() + adminPunish.getEnterpriseName() + adminPunish.getPersonName() + adminPunish.getPublishDate()));
-		saveAdminPunishOne(adminPunish, false);
+		String publishDate = map.get("publishDate");
+		String uniquekey = map.get("sourceUrl")+"@"+entName+"@"+publishDate;
+		String objectType = "01";
+		String punishReason = resultStr;
+		/*log.info("entName:"+entName);
+		log.info("judgeNo:"+judgeNo);
+		log.info("publishDate:"+publishDate);
+		log.info("uniquekey:"+uniquekey);
+*/
+		AdminPunish adminPunish = new AdminPunish();
+		adminPunish.setSource(source);
+		adminPunish.setSubject(subject);
+		adminPunish.setUniqueKey(uniquekey);
+		adminPunish.setUrl(url);
+		adminPunish.setObjectType(objectType);
+		adminPunish.setEnterpriseName(entName);
+		adminPunish.setJudgeAuth(judgeAuth);
+		adminPunish.setJudgeNo(judgeNo);
+		adminPunish.setPunishReason(punishReason);
+		adminPunish.setPublishDate(publishDate);
 
+		//数据入库
+		if(adminPunishMapper.selectByUrl(url,entName,null,judgeNo,judgeAuth).size()==0){
+			adminPunishMapper.insert(adminPunish);
+		}
+	}
+
+
+	/**
+	 * 解析详情页面
+	 * @param htmlPage
+	 * @param detailUrl
+	 * @param titleName
+	 * @param publishDate
+	 */
+	public Map parseDetailPage(HtmlPage htmlPage,String baseUrl,String detailUrl,String titleName,String publishDate,String source,String area){
+		//原文非附件的文本
+		String text  = "";
+		//用于存储，attachmentName（附件名称），nextPageFlag（翻页标识）
+		Map<String,Object> map = new HashMap();
+		boolean nextPageFlag = true;
+		String attachmentName = "";
+		String attachmentType = "";
+		String htmlText = "";
+		String hashKeyFilePath = "";
+		List<HtmlElement> htmlElements = htmlPage.getByXPath("//div[@class='easysite-news-text']");
+		if(htmlElements.size()==0){
+			htmlElements = htmlPage.getByXPath("//div[@class='xl_Cont1']");
+		}
+		if(htmlElements.size()>0){
+			HtmlElement htmlElement = htmlElements.get(0);
+			//1.获取详情子页面
+			Document htmlTextDoc = Jsoup.parse("<p>发布主题："+titleName+"</p>"+"<p>发布时间："+publishDate+"</p>"+htmlElement.asXml());
+			htmlText = htmlTextDoc.html();
+			text  = htmlTextDoc.text();
+			//2.获取附件所在的标签
+			List<HtmlElement> htmlElementAList = htmlElement.getElementsByTagName("a");
+			List<HtmlElement> htmlElementImgList = htmlElement.getElementsByTagName("img");
+			//3.创建存储对象
+			ScrapyData scrapyData = new ScrapyData();
+			int count = 1;
+
+			if(htmlElementImgList.size()>0){
+				for(HtmlElement htmlElementImg : htmlElementImgList){
+					WebClient webClient = null;
+					try {
+						webClient = createWebClient("","");
+						webClient.getOptions().setTimeout(50000);
+						String[] attachmentTypeStr = htmlElementImg.getAttribute("src").split("\\.");
+						//创建路径
+						hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
+						//下载元素网页
+						saveFile(htmlPage,titleName+".html",hashKeyFilePath);
+						Page page = webClient.getPage(baseUrl+htmlElementImg.getAttribute("src"));
+						//下载附件
+						if(attachmentTypeStr.length>1){
+							attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
+							attachmentName = titleName+(count++)+"."+attachmentType;
+							saveFile(page,attachmentName,hashKeyFilePath);
+						}
+					} catch (IOException e) {
+						log.error("下载附件出现异常，请查验···"+e.getMessage());
+					}catch (Exception e){
+						log.error("保存附件出现异常，请检验···"+e.getMessage());
+					}catch (Throwable throwable){
+						log.info("创建浏览器窗体异常，请检查···"+ throwable.getMessage());
+					}finally {
+						webClient.close();
+					}
+				}
+			}else if(htmlElementAList.size()>0){
+				for(HtmlElement htmlElementA : htmlElementAList){
+					try {
+						String[] attachmentTypeStr = htmlElementA.getAttribute("href").split("\\.");
+						//创建路径
+						hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
+						//下载元素网页
+						saveFile(htmlPage,titleName+".html",hashKeyFilePath);
+						Page page = htmlElementA.click();
+						//下载附件
+						if(attachmentTypeStr.length>1){
+							attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
+							attachmentName = titleName+(count++)+"."+attachmentType;
+							saveFile(page,attachmentName,hashKeyFilePath);
+						}
+					} catch (IOException e) {
+						log.error("下载附件出现异常，请查验···"+e.getMessage());
+					}catch (Exception e){
+						log.error("保存附件出现异常，请检验···"+e.getMessage());
+					}
+				}
+			}else{
+				//创建路径
+				hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
+				//下载元素网页
+				saveFile(htmlPage,titleName+".html",hashKeyFilePath);
+
+			}
+
+			//准备入库操作
+			scrapyData.setHtml(htmlText);
+			scrapyData.setText(text);
+			scrapyData.setUrl(detailUrl);
+			scrapyData.setCreatedAt(new Date());
+			scrapyData.setSource(source);
+			scrapyData.setFields("source,subject,url,enterprise_name,publish_date/punishDate,judge_no,title");
+			scrapyData.setAttachmentType(attachmentType);
+			scrapyData.setHashKey(hashKeyFilePath);
+			//入库
+			nextPageFlag = saveScrapyDataOne(scrapyData,false);
+		}
+		map.put("text",text);
+		map.put("attachmentName",attachmentName);
+		map.put("nextPageFlag",nextPageFlag);
+		map.put("html",htmlText);
+		return map;
 	}
 }

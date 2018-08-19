@@ -28,7 +28,7 @@ import java.util.List;
 @Scope("prototype")
 public class NCMS_BlackList extends SiteTaskExtend_CollgationSite {
 
-    private String source = "全国建筑市场监管公共服务平台-黑名单记录";
+    private String source = "全国建筑市场监管公共服务平台";
     private String subject = "黑名单记录";
     @Override
     protected String execute() throws Throwable {
