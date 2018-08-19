@@ -2,6 +2,7 @@ package com.mr.modules.api.site.instance.colligationsite.haikwansite.zhanjiang;
 
 import com.mr.common.OCRUtil;
 import com.mr.common.util.AIOCRUtil;
+import com.mr.common.util.BaiduOCRUtil;
 import com.mr.framework.core.util.StrUtil;
 import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.model.AdminPunish;
@@ -72,38 +73,43 @@ public class HaiKuan_ZhanJiang_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWa
 
 	@Override
 	public void extractImgData(Map<String, String> map) {
-//        String sourceUrl = map.get("sourceUrl");
-//        String filePath = map.get("filePath");
-//        String publishDate = map.get("publishDate");
-//        String attachmentName = map.get("attachmentName");
-//        String titleText = map.get("text");
-//        String bodyText = "";
-//        try {
-//            bodyText = aiocrUtil.getTextFromImageFile(filePath + File.separator + attachmentName);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return;
-//        }
-//        String text = titleText + " " + bodyText;
-//        extractData(sourceUrl, publishDate, text);
+		String sourceUrl = map.get("sourceUrl");
+		String filePath = map.get("filePath");
+		String publishDate = map.get("publishDate");
+		String attachmentName = map.get("attachmentName");
+		String titleText = map.get("text");
+		String bodyText = "";
+		try {
+			if (attachmentName.contains(".tif")) {
+				bodyText = BaiduOCRUtil.getTextStrFromTIFFile(filePath, attachmentName);
+			} else {
+				bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		String text = titleText + " " + bodyText;
+		extractData(sourceUrl, publishDate, text);
 	}
 
 	@Override
 	public void extractPdfData(Map<String, String> map) {
-//        String sourceUrl = map.get("sourceUrl");
-//        String filePath = map.get("filePath");
-//        String publishDate = map.get("publishDate");
-//        String attachmentName = map.get("attachmentName");
-//        String titleText = map.get("text");
-//        String bodyText = "";
-//        try {
-//            bodyText = extractWebDOCXLSData(filePath, attachmentName);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return;
-//        }
-//        String text = titleText + " " + bodyText;
-//        extractData(sourceUrl, publishDate, text);
+		String sourceUrl = map.get("sourceUrl");
+		String filePath = map.get("filePath");
+		String publishDate = map.get("publishDate");
+		String attachmentName = map.get("attachmentName");
+		String titleText = map.get("text");
+		String bodyText = "";
+		try {
+			bodyText = BaiduOCRUtil.getTextStrFromPDFFile(filePath, attachmentName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		String text = titleText + " " + bodyText;
+		extractData(sourceUrl, publishDate, text);
 
 	}
 
@@ -140,6 +146,21 @@ public class HaiKuan_ZhanJiang_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWa
 		text = text.replaceAll("([\\s])+", "，");
 		text = text.replaceAll("[，]+", "，");
 		text = text.replace("当事人：，", "当事人：");
+		text = text.replace("，：", "：");
+		text = text.replace(":", "：");
+		text = text.replace("，事人", "，当事人");
+		text = text.replace("，当事、人：", "，当事人：");
+		text = text.replace("，当导人：", "，当事人：");
+		text = text.replace("，当手人：", "，当事人：");
+		text = text.replace("当事，", "当事人：");
+		text = text.replace("当事人，", "当事人：");
+		text = text.replace("当人：", "当事人：");
+		text = text.replace("当半人，", "当事人：");
+		text = text.replace("当申人：", "当事人：");
+		text = text.replace("当事入：", "当事人：");
+		text = text.replace("当写人：", "当事人：");
+		text = text.replace("称：", "当事人：");
+		text = text.replace("法定代表人为", "法定代表人：");
 
 
 		String[] textArr = text.split("，");
@@ -187,14 +208,6 @@ public class HaiKuan_ZhanJiang_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWa
 
 		adminPunish.setUniqueKey(MD5Util.encode(adminPunish.getUrl() + adminPunish.getEnterpriseName() + adminPunish.getPersonName() + adminPunish.getPublishDate()));
 		saveAdminPunishOne(adminPunish, false);
-	}
-
-	//提取附件为PDF的文本内容，调用ocr识别
-	public String extractWebDOCXLSData(String filePath, String fileName) {
-		String filePathName = filePath + File.separator + fileName;
-		ocrUtil.pdf2image(filePathName);
-		String text = AIOCRUtil.getTextFromImageFile(filePath + File.separator + "0.png");
-		return text;
 	}
 
 }

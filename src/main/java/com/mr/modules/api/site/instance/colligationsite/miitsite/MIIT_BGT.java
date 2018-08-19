@@ -1,17 +1,16 @@
 package com.mr.modules.api.site.instance.colligationsite.miitsite;
 
 import com.google.common.collect.Maps;
+import com.mr.common.IdempotentOperator;
 import com.mr.common.OCRUtil;
-import com.mr.framework.core.collection.CollectionUtil;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.Console;
 import com.mr.framework.core.util.StrUtil;
-import com.mr.framework.poi.excel.ExcelReader;
-import com.mr.framework.poi.excel.ExcelUtil;
 import com.mr.framework.poi.excel.sax.Excel07SaxReader;
 import com.mr.framework.poi.excel.sax.handler.RowHandler;
 import com.mr.modules.api.model.ProductionQuality;
 import com.mr.modules.api.model.ScrapyData;
+import com.mr.modules.api.site.SiteTaskExtend;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite;
 import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
 import jxl.Sheet;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 /**
  * 站点：工业和信息化部网站
@@ -82,8 +82,9 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 				if (i == 0) {
 					cListString = getData("http://foodcredit.miit.gov.cn/gongzhongfuwu/baoguangtai/index.html");
 				} else {
-					cListString = getData(String.format(baseUrl, i));
+					cListString =  getData(String.format(baseUrl, i));
 				}
+				if(StrUtil.isEmpty(cListString)) continue;
 				if (cListString.contains("404 Not Found")) break;
 
 				Document document = Jsoup.parse(cListString);
@@ -96,7 +97,8 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 					String title = aElements.get(j).text();
 					log.info("dUrl:{}", dUrl);
 					//进入明细页面
-					String detailstr = getData(dUrl);
+					String detailstr =  getData(dUrl);
+					if(StrUtil.isEmpty(detailstr)) continue;
 					Document detailDoc = Jsoup.parse(detailstr);
 					Elements aaEles = detailDoc.getElementsByTag("a");
 					//明细页面解析
@@ -111,35 +113,35 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 								String fileDir = MD5Util.encode(href);
 								//下载excel
 								String fileName = downLoadFile(href);
+								String pFilePath = OCRUtil.DOWNLOAD_DIR
+										+ File.separator + "miit"
+										+ File.separator + fileDir
+										+ File.separator + fileName;
 								FileUtil.move(new File(OCRUtil.DOWNLOAD_DIR + File.separator + fileName),
-										new File(OCRUtil.DOWNLOAD_DIR + File.separator + fileDir + File.separator + fileName),
+										new File(pFilePath),
 										true);
 								//创建对象
 								ScrapyData scrapyData = new ScrapyData();
 								scrapyData.setUrl(href);
 								scrapyData.setSource(source);
-								scrapyData.setHashKey(fileDir);
+								scrapyData.setHashKey(pFilePath);
 								scrapyData.setCreatedAt(new Date());
-								scrapyData.setHtml(detailDoc.html());
-								scrapyData.setText("　　发布主题：" + title + "　　\n发布时间：" + publishDate + "\n");
+								scrapyData.setHtml(detailDoc.html().replaceAll("\\s*", ""));
+								scrapyData.setText(("发布主题：" + title + "　　\n发布时间：" + publishDate + "\n").replaceAll("\\s*", ""));
 								scrapyData.setFields(fields);
 								scrapyData.setAttachmentType(fileName.substring(fileName.indexOf(".") + 1));
 								//入库
-								boolean isFlag = saveScrapyDataOne(scrapyData, false);
+								if(saveScrapyDataOne(scrapyData, false)){
+									continue;
+								}
 
 								List<List<Object>> allList = null;
 								if (href.endsWith(".xls")) {
 									//excel03
-									allList = read03Excel(OCRUtil.DOWNLOAD_DIR
-											+ File.separator +
-											fileDir + File.separator
-											+ fileName);
+									allList = read03Excel(pFilePath);
 								} else {
 									//excel07
-									allList = read07Excel(OCRUtil.DOWNLOAD_DIR
-											+ File.separator +
-											fileDir + File.separator
-											+ fileName);
+									allList = read07Excel(pFilePath);
 								}
 								//解析excel
 								int n = 0;
@@ -224,6 +226,21 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 		} finally {
 
 		}
+	}
+
+	protected String getData(String url) {
+		String result  ="";
+		try{
+			result = new IdempotentOperator<String>(new Callable<String>() {
+				@Override
+				public String call() throws Exception {
+					return restTemplate.getForObject(url, String.class);
+				}
+			}).execute(3);
+		}catch (RuntimeException e){
+			result = e.getMessage();
+		}
+		return result;
 	}
 
 	/**

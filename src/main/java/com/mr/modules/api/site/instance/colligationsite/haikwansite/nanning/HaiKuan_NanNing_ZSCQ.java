@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,11 @@ public class HaiKuan_NanNing_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         String titleText = map.get("text");
         String bodyText = "";
         try {
-            bodyText = BaiduOCRUtil.getTextStrFromPDFFile(filePath, attachmentName);
+			if (attachmentName.contains(".tif")) {
+				bodyText = BaiduOCRUtil.getTextStrFromTIFFile(filePath, attachmentName);
+			} else {
+				bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
+			}
         } catch (Exception e) {
             e.printStackTrace();
             return;
