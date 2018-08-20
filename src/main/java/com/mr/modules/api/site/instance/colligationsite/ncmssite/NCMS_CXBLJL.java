@@ -87,21 +87,21 @@ public class NCMS_CXBLJL extends SiteTaskExtend_CollgationSite {
                 List<HtmlTableCell> cellList = tableRow.getCells();
                 //cellList.get(0)=诚信记录编号
                 String recordNo = cellList.get(0).getElementsByTagName("span").get(0).asText().trim();//诚信记录编号
-                String uniqueKey = indexUrl + recordNo;//拼接uniqueKey
-                if (adminPunishMapper.selectCountByUniqueKey(uniqueKey) == 0) {//不存在则插入
-                    AdminPunish adminPunish = createAdminPunish();
-                    adminPunish.setUniqueKey(uniqueKey);//设置UniqueKey
-                    //cellList.get(1)=诚信记录主体
-                    HtmlTableCell nameCell = cellList.get(1);
-                    if (recordNo.contains("RY")) {//个人
-                        adminPunish.setObjectType("02");
-                        adminPunish.setSubject("个人不良诚信记录");
-                        adminPunish.setPersonName(nameCell.asText().trim());
-                    } else {//企业
-                        adminPunish.setObjectType("01");
-                        adminPunish.setSubject("企业不良诚信记录");
-                        adminPunish.setEnterpriseName(nameCell.asText().trim());
-                    }
+                AdminPunish adminPunish = createAdminPunish();
+                adminPunish.setUniqueKey(recordNo);//设置UniqueKey
+                //cellList.get(1)=诚信记录主体
+                HtmlTableCell nameCell = cellList.get(1);
+                if (recordNo.contains("RY")) {//个人
+                    adminPunish.setObjectType("02");
+                    adminPunish.setSubject("个人不良诚信记录");
+                    adminPunish.setPersonName(nameCell.asText().trim());
+                } else {//企业
+                    adminPunish.setObjectType("01");
+                    adminPunish.setSubject("企业不良诚信记录");
+                    adminPunish.setEnterpriseName(nameCell.asText().trim());
+                }
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     List anchorList = nameCell.getElementsByTagName("a");//获取名称上面的超链接标签
                     if (anchorList.size() > 0) {
                         HtmlAnchor infoAnchor = (HtmlAnchor) anchorList.get(0);
@@ -143,6 +143,8 @@ public class NCMS_CXBLJL extends SiteTaskExtend_CollgationSite {
                     //cellList.get(4)=发布有效期
 
                     adminPunishMapper.insert(adminPunish);
+                } else {
+                    log.info("此条记录已存在，不需要入库！");
                 }
             }
             //点击到下一个继续处理

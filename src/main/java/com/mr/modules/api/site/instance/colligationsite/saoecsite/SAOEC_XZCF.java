@@ -94,12 +94,16 @@ public class SAOEC_XZCF extends SiteTaskExtend_CollgationSite {
                 //table.getCellAt(i, 10).asText();//处罚金额（单位：万元人民币）
                 //table.getCellAt(i, 11).asText();//行政处罚变更情况
                 //table.getCellAt(i, 12).asText();//备注
-                adminPunish.setUniqueKey(getUniqueKey(adminPunish));
-                //adminPunishMapper.
             }
+            //设置UniqueKey
+            adminPunish.setUniqueKey(getUniqueKey(adminPunish));
             //记录不存在时才插入(增量插入)
-            if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {
-                adminPunishMapper.insert(adminPunish);
+            if (StrUtil.isNotEmpty(adminPunish.getObjectType()) && (StrUtil.isNotEmpty(adminPunish.getPersonName()) || StrUtil.isNotEmpty(adminPunish.getEnterpriseName()))) {
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
+                    adminPunishMapper.insert(adminPunish);
+                } else {
+                    log.info("此条记录已存在，不需要入库！");
+                }
             }
         } else {//没有查询到结果
             log.debug(errorElement.asXml());

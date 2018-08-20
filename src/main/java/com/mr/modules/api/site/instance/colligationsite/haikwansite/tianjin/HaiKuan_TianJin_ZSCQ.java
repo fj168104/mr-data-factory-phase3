@@ -63,6 +63,7 @@ public class HaiKuan_TianJin_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
 	}
 
 
+
 	/**
 	 * 提取网页中附件为：img(各种类型的图片)文本
 	 * @map Map用户存储，filePath(附件所在路径)，attachmentName(附件名称),publishDate,text(附件文本)，详情网页地址：sourceUrl
