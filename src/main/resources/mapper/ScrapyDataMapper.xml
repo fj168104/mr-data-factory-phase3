@@ -14,6 +14,7 @@
     <result column="html" property="html" jdbcType="LONGVARCHAR" />
     <result column="text" property="text" jdbcType="LONGVARCHAR" />
     <result column="fields" property="fields" jdbcType="LONGVARCHAR" />
+    <result column="title" property="title" jdbcType="LONGVARCHAR" />
   </resultMap>
   <!--通过业务主键删除-->
   <delete id="deleteAllByUrl" parameterType="java.lang.String">

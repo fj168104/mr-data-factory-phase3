@@ -54,6 +54,11 @@ public class ScrapyData extends BaseEntity {
     private String fields;
 
     /**
+     * 内容标题
+     */
+    private String title;
+
+    /**
      * @return id
      */
     /*public Integer getId() {
@@ -209,5 +214,13 @@ public class ScrapyData extends BaseEntity {
      */
     public void setFields(String fields) {
         this.fields = fields;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

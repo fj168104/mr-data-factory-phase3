@@ -83,4 +83,9 @@ public class ProductionQuality extends BaseEntity {
     //@Column(name = "publish_date")
     private String publishDate;
 
+    /**
+     * 内容标题
+     */
+    private String title;
+
 }
