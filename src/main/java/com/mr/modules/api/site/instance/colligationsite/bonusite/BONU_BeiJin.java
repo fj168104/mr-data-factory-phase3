@@ -116,8 +116,11 @@ public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
                 adminPunish.setJudgeAuth("北京市统计局"); //决定部门
                 adminPunish.setPublishDate("2018-01-10");
                 adminPunish.setUniqueKey(getUniqueKey(adminPunish));
-                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {//不存在时插入数据
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     adminPunishMapper.insert(adminPunish);
+                }else{
+                    log.info("此条记录已存在，不需要入库！");
                 }
             }
         }
@@ -174,8 +177,11 @@ public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
                 adminPunish.setJudgeAuth("北京市统计局"); //决定部门
                 adminPunish.setPublishDate("2017-12-19");
                 adminPunish.setUniqueKey(getUniqueKey(adminPunish));
-                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {//不存在时插入数据
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     adminPunishMapper.insert(adminPunish);
+                }else{
+                    log.info("此条记录已存在，不需要入库！");
                 }
             }
         }
@@ -231,8 +237,11 @@ public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
                 adminPunish.setJudgeAuth("北京市统计局"); //决定部门
                 adminPunish.setPublishDate("2017-11-20");
                 adminPunish.setUniqueKey(getUniqueKey(adminPunish));
-                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {//不存在时插入数据
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     adminPunishMapper.insert(adminPunish);
+                }else{
+                    log.info("此条记录已存在，不需要入库！");
                 }
             }
         }
@@ -281,8 +290,11 @@ public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
                 adminPunish.setPublishDate("2017-01-19");
                 //row.get(8);//救济渠道
                 adminPunish.setUniqueKey(getUniqueKey(adminPunish));
-                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {//不存在时插入数据
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     adminPunishMapper.insert(adminPunish);
+                }else{
+                    log.info("此条记录已存在，不需要入库！");
                 }
             }
         }
@@ -331,8 +343,11 @@ public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
                 adminPunish.setPublishDate("2016-12-20");
                 //row.get(8);//救济渠道
                 adminPunish.setUniqueKey(getUniqueKey(adminPunish));
-                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {//不存在时插入数据
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     adminPunishMapper.insert(adminPunish);
+                }else{
+                    log.info("此条记录已存在，不需要入库！");
                 }
             }
         }

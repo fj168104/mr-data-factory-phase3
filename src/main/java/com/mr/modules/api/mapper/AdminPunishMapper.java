@@ -53,9 +53,9 @@ public interface AdminPunishMapper extends BaseMapper<AdminPunish> {
 	int selectCountByJudgeNoAndName(@Param("objectType") String objectType, @Param("judgeNo") String judgeNo, @Param("name") String name);
 
 	/**
-	 * 根据UniqueKey查询记录条数，用于判断记录是否存在
+	 * 根据Source+Subject+UniqueKey查询记录条数，用于判断记录是否存在
 	 * @param uniqueKey
 	 * @return
 	 */
-	int selectCountByUniqueKey(@Param("uniqueKey") String uniqueKey);
+	int selectCountByUniqueKey(@Param("source") String source, @Param("subject") String subject, @Param("uniqueKey") String uniqueKey);
 }
