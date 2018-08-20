@@ -225,6 +225,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         String attachmentName = "";
         String attachmentType = "";
         String htmlText = "";
+        String hashKeyFilePath = "";
         List<HtmlElement> htmlElements = htmlPage.getByXPath("//div[@class='easysite-news-text']");
         if(htmlElements.size()>0){
             HtmlElement htmlElement = htmlElements.get(0);
@@ -243,9 +244,10 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                     WebClient webClient = null;
                     try {
                         webClient = createWebClient("","");
+                        webClient.getOptions().setTimeout(50000);
                         String[] attachmentTypeStr = htmlElementImg.getAttribute("src").split("\\.");
                         //创建路径
-                        String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
+                        hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
                         //下载元素网页
                         saveFile(htmlPage,titleName+".html",hashKeyFilePath);
                         Page page = webClient.getPage(baseUrl+htmlElementImg.getAttribute("src"));
@@ -255,7 +257,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                             attachmentName = titleName+(count++)+"."+attachmentType;
                             saveFile(page,attachmentName,hashKeyFilePath);
                         }
-                        //准备入库操作
+                        /*//准备入库操作
                         scrapyData.setHtml(htmlText);
                         scrapyData.setText(text);
                         scrapyData.setUrl(detailUrl);
@@ -265,7 +267,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         scrapyData.setAttachmentType(attachmentType);
                         scrapyData.setHashKey(hashKeyFilePath);
                         //入库
-                        nextPageFlag = saveScrapyDataOne(scrapyData,false);
+                        nextPageFlag = saveScrapyDataOne(scrapyData,false);*/
                     } catch (IOException e) {
                         log.error("下载附件出现异常，请查验···"+e.getMessage());
                     }catch (Exception e){
@@ -281,7 +283,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                     try {
                         String[] attachmentTypeStr = htmlElementA.getAttribute("href").split("\\.");
                         //创建路径
-                        String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
+                        hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
                         //下载元素网页
                         saveFile(htmlPage,titleName+".html",hashKeyFilePath);
                         Page page = htmlElementA.click();
@@ -291,7 +293,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                             attachmentName = titleName+(count++)+"."+attachmentType;
                             saveFile(page,attachmentName,hashKeyFilePath);
                         }
-                        //准备入库操作
+                        /*//准备入库操作
                         scrapyData.setHtml(htmlText);
                         scrapyData.setText(text);
                         scrapyData.setUrl(detailUrl);
@@ -301,7 +303,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         scrapyData.setAttachmentType(attachmentType);
                         scrapyData.setHashKey(hashKeyFilePath);
                         //入库
-                        nextPageFlag = saveScrapyDataOne(scrapyData,false);
+                        nextPageFlag = saveScrapyDataOne(scrapyData,false);*/
                     } catch (IOException e) {
                         log.error("下载附件出现异常，请查验···"+e.getMessage());
                     }catch (Exception e){
@@ -310,10 +312,10 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 }
             }else{
                 //创建路径
-                String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
+                hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);
                 //下载元素网页
                 saveFile(htmlPage,titleName+".html",hashKeyFilePath);
-                //准备入库操作
+                /*//准备入库操作
                 scrapyData.setHtml(htmlText);
                 scrapyData.setText(text);
                 scrapyData.setUrl(detailUrl);
@@ -323,8 +325,21 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                 scrapyData.setAttachmentType("");
                 scrapyData.setHashKey(hashKeyFilePath);
                 //入库
-                nextPageFlag = saveScrapyDataOne(scrapyData,false);
+                nextPageFlag = saveScrapyDataOne(scrapyData,false);*/
             }
+
+            //准备入库操作
+            scrapyData.setHtml(htmlText);
+            scrapyData.setText(text);
+            scrapyData.setUrl(detailUrl);
+            scrapyData.setCreatedAt(new Date());
+            scrapyData.setSource(source);
+            scrapyData.setFields("source,subject,url,enterprise_name,publish_date/punishDate,judge_no,title");
+            scrapyData.setAttachmentType(attachmentType);
+            scrapyData.setHashKey(hashKeyFilePath);
+            //入库
+            nextPageFlag = saveScrapyDataOne(scrapyData,false);
+
         }
         map.put("text",text);
         map.put("attachmentName",attachmentName);

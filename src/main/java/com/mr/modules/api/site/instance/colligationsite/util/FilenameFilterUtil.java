@@ -13,6 +13,7 @@ public class FilenameFilterUtil implements FilenameFilter {
     public String tail;
 
     public FilenameFilterUtil(String tail) {
+        tail = tail.toLowerCase();
         this.tail = tail;
     }
 

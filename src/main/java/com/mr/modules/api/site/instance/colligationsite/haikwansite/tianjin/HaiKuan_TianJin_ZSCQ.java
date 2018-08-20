@@ -10,7 +10,6 @@ import com.mr.modules.api.SiteParams;
 import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.model.ScrapyData;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite_HaiKWan;
-import com.mr.modules.api.site.instance.boissite.Test2;
 import com.mr.modules.api.site.instance.colligationsite.util.FilenameFilterUtil;
 import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +61,7 @@ public class HaiKuan_TianJin_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
 	protected String executeOne() throws Throwable {
 		return super.executeOne();
 	}
+
 
 
 	/**
