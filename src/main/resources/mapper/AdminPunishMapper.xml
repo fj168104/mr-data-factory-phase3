@@ -75,6 +75,6 @@
 
   <!--根据UniqueKey查找记录条数-->
   <select id="selectCountByUniqueKey" parameterType="java.lang.String" resultType="Integer">
-    select count(1) from admin_punish where unique_key=#{uniqueKey}
+    select count(1) from admin_punish where source=#{source} and subject=#{subject} and unique_key=#{uniqueKey}
   </select>
 </mapper>

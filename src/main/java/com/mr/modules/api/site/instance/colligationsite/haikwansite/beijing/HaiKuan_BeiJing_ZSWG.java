@@ -129,8 +129,11 @@ public class HaiKuan_BeiJing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
             // 设置UniqueKey
             adminPunish.setUniqueKey(adminPunish.getUrl() + adminPunish.getJudgeNo() + adminPunish.getEnterpriseName() + adminPunish.getPersonName());
             if (StrUtil.isNotEmpty(adminPunish.getObjectType()) && (StrUtil.isNotEmpty(adminPunish.getPersonName()) || StrUtil.isNotEmpty(adminPunish.getEnterpriseName()))) {
-                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getUniqueKey()) == 0) {//不存在则插入
+                //不存在则插入
+                if (adminPunishMapper.selectCountByUniqueKey(adminPunish.getSource(), adminPunish.getSubject(), adminPunish.getUniqueKey()) == 0) {
                     adminPunishMapper.insert(adminPunish);
+                }else{
+                    log.info("此条记录已存在，不需要入库！");
                 }
             } else {
                 log.warn("本条数据解析失败，无法入库。数据内容：\n{}", text);
