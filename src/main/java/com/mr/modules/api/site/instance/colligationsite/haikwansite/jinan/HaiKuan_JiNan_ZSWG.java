@@ -39,7 +39,7 @@ public class HaiKuan_JiNan_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
     protected String execute() throws Throwable {
         String ip = "";
         String port = "";
-        String source = "济南海关走私违规行政处罚";
+    //    String source = "济南海关走私违规行政处罚";
         String area = "jinan";//区域为：济南
         String baseUrl = "http://jinan.customs.gov.cn";
         String url = "http://jinan.customs.gov.cn/jinan_customs/500341/500363/500365/500367/index.html";
