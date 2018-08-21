@@ -25,6 +25,9 @@ import java.util.Map;
 @Component("haikuan_shantou_zscq")
 public class HaiKuan_ShanTou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
 
+    private String source = "汕头海关";
+    private String subject = "汕头海关知识产权行政处罚";
+
     @Autowired
     SiteParams siteParams;
 
@@ -32,7 +35,6 @@ public class HaiKuan_ShanTou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
     protected String execute() throws Throwable {
         String ip = "";
         String port = "";
-        String source = "汕头海关知识产权行政处罚";
         String area = "shantou";//区域为：汕头
         String baseUrl = "http://shantou.customs.gov.cn";
         String url = "http://shantou.customs.gov.cn/shantou_customs/596193/596226/596228/596229/index.html";
@@ -56,8 +58,8 @@ public class HaiKuan_ShanTou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
         adminPunish.setPublishDate(publishDate);
         adminPunish.setUpdatedAt(new Date());
         adminPunish.setCreatedAt(new Date());
-        adminPunish.setSubject("汕头海关知识产权行政处罚");
-        adminPunish.setSource("汕头海关");
+        adminPunish.setSubject(subject);
+        adminPunish.setSource(source);
 
 
         text = text.replace("： 营业执照\\/","营业执照：");
