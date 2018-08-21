@@ -63,10 +63,6 @@ public class HaiKuan_KunMing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
     //提取Web结构化数据
     @Override
     public void extractWebData(Map<String, String> map) {
-        String html = map.get("html");
-        html = html.replace("处罚是由：", "处罚事由：");
-        html = html.replace("法定代表人身份证号码：", "法定代表人身份证号：");
-
         AdminPunish adminPunish = createAdminPunish();
         adminPunish.setSource("昆明海关");// 数据来源
         adminPunish.setSubject("海关走私违规行政处罚");// 主题
@@ -130,7 +126,8 @@ public class HaiKuan_KunMing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
                             adminPunish.setPersonName(fr);
                         }
                     }
-                    if (pText.contains("法定代表人身份证号：")) {
+                    if (pText.contains("法定代表人身份证号：") || pText.contains("法定代表人身份证号码：")) {
+                        pText = pText.replace("法定代表人身份证号码：", "法定代表人身份证号：");
                         int beginIndex = pText.indexOf("法定代表人身份证号：") + 10;
                         String frId = pText.substring(beginIndex).replace(" ", "");
                         adminPunish.setPersonId(frId);
@@ -140,7 +137,8 @@ public class HaiKuan_KunMing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
                         adminPunish.setPunishType(pText.substring(beginIndex).replace(" ", ""));
                         continue;
                     }
-                    if (pText.contains("处罚事由：")) {
+                    if (pText.contains("处罚事由：") || pText.contains("处罚是由：")) {
+                        pText = pText.replace("处罚是由：", "处罚事由：");
                         int beginIndex = pText.indexOf("处罚事由：") + 5;
                         adminPunish.setPunishReason(pText.substring(beginIndex));
                         continue;

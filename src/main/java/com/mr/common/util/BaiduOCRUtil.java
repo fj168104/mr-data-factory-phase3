@@ -10,12 +10,17 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,7 +30,7 @@ import java.util.Map;
 
 /**
  * 百度云OCR工具类
- *
+ * <p>
  * 支持图片格式：PNG、JPG、JPEG、BMP
  * 其他限制：图片经过base64编码后大小不超过4M，最短边至少15px，最长边最大4096px
  *
@@ -150,7 +155,7 @@ public class BaiduOCRUtil {
     /**
      * 识别本地图片文件上的文本内容（通用OCR识别服务）
      *
-     * @param filePath filePath 图片文件路径
+     * @param filePath  filePath 图片文件路径
      * @param separator 解析行分隔符
      * @return 返回单个图片识别结果内容
      */
@@ -413,6 +418,7 @@ public class BaiduOCRUtil {
 
     /**
      * 解析PDF
+     *
      * @return
      * @throws Exception
      */
@@ -422,32 +428,59 @@ public class BaiduOCRUtil {
 
     /**
      * 解析PDF
+     *
      * @return
      * @throws Exception
      */
-    public static String getTextStrFromPDFFile(String filePath, String attachmentName, String separator) throws Exception {
+    public static String getTextStrFromPDFFile(String filePath, String attachmentName, String separator) {
+        if (!attachmentName.toLowerCase().endsWith(".pdf")) {
+            log.warn("{}/{} is not pdf file，can not convert to image！", filePath, attachmentName);
+            return "";
+        }
         //将pdf转换为图片
-        OcrUtils ocrUtil = new OcrUtils(filePath);
-        String dirFile =ocrUtil.image2Dir(attachmentName, false);
-
-        File testDataDir = new File(dirFile);
-        //listFiles()方法是返回某个目录下所有文件和目录的绝对路径，返回的是File数组
-        File[] files = testDataDir.listFiles();
-        int imgCount = files.length;
-//		log.info("tessdata目录下共有 " + imgCount + " 个文件/文件夹");
+        List<File> pngList = pdf2image(filePath + File.separator + attachmentName, false);
         //解析image
         StringBuilder sbs = new StringBuilder();
-        for (int i = imgCount - 1; i >= 0; i--) {
-            sbs.append(getTextStrFromImageFile(files[i].getAbsolutePath(), separator));
+        for (File f : pngList) {
+            sbs.append(getTextStrFromImageFile(f.getAbsolutePath(), separator));
+            //FileUtil.del(f);//删除png文件
         }
-        //删除文件夹 dirName
-        FileUtil.del(dirFile);
-
         return sbs.toString();
     }
 
     /**
+     * PDF转换成图片
+     *
+     * @param pdfName    PDF文件(绝对路径)
+     * @param needDelete 转换完成后，是否需要删除PDF原文件
+     * @return pngList 转换后的png格式文件列表
+     */
+    public static List<File> pdf2image(String pdfName, boolean needDelete) {
+        List<File> pngList = new ArrayList<>();
+        File file = new File(pdfName);
+        try {
+            PDDocument doc = PDDocument.load(file);
+            PDFRenderer renderer = new PDFRenderer(doc);
+            int pageCount = doc.getNumberOfPages();
+            for (int i = 0; i < pageCount; ++i) {
+                BufferedImage image = renderer.renderImageWithDPI(i, 96.0F);//读取pdf
+                File pngFile = new File(file.getParentFile(), i + ".png");
+                ImageIO.write(image, "PNG", pngFile);//写png文件
+                pngList.add(pngFile);
+            }
+            if (needDelete) {
+                file.delete();//删除PDF
+            }
+            doc.close();
+        } catch (IOException e) {
+            log.warn("convert pdf to image failed...", e);
+        }
+        return pngList;
+    }
+
+    /**
      * 解析TIF
+     *
      * @return
      * @throws Exception
      */
@@ -457,6 +490,7 @@ public class BaiduOCRUtil {
 
     /**
      * 解析TIF
+     *
      * @return
      * @throws Exception
      */
