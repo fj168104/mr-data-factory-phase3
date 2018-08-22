@@ -152,7 +152,7 @@ public class HaiKuan_WuHan_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
         adminPunish.setPublishDate(map.get("publishDate"));// 发布日期
         try {
             //调用百度OCR获取文本内容
-            String text = BaiduOCRUtil.getTextStrFromPDFFile(filePath, attachmentName, "\n");
+            String text = BaiduOCRUtil.getTextStrFromPDFImg(filePath, attachmentName, "\n");
             adminPunish.setPunishReason(text);
             for (String lineText : text.split("\n")) {//按行读取文本
                 if (lineText == null) {
