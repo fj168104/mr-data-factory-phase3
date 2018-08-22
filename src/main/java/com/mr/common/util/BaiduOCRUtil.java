@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
-import com.mr.framework.ocr.OcrUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -526,8 +524,20 @@ public class BaiduOCRUtil {
      *
      * @return
      */
-    public static AipOcr createBaiduAipOcrClient() {
-        AipOcr client = new AipOcr(appId, appKey, secretKey);
+    private static AipOcr createBaiduAipOcrClient() {
+        return createBaiduAipOcrClient(appId, appKey, secretKey);
+    }
+
+    /**
+     * 创建一个百度云访问客户端对象
+     *
+     * @param app_id     应用ID
+     * @param app_key    AK
+     * @param secret_key SK
+     * @return
+     */
+    public static AipOcr createBaiduAipOcrClient(String app_id, String app_key, String secret_key) {
+        AipOcr client = new AipOcr(app_id, app_key, secret_key);
         // 可选：设置网络连接参数
         client.setConnectionTimeoutInMillis(30000);//默认连接超时时间,30秒
         client.setSocketTimeoutInMillis(300000);//默认读取超时时间,5分钟
