@@ -198,7 +198,7 @@ public class HaiKuan_GuangZhou_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWa
                 attchmentList.add(attchmentFile.getPath());
             }
         }
-        if(tail.toLowerCase().equalsIgnoreCase(".jpg")){
+        if(tail.toLowerCase().equalsIgnoreCase(".jpg") || tail.toLowerCase().equalsIgnoreCase(".png")){
             try{
                 resultStr = BaiduOCRUtil.getTextStrFromImageFileList(attchmentList);
             }catch (Exception e) {

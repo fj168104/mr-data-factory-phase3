@@ -91,6 +91,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         }
 
                         String titleName = htmlElementA.getAttribute("title");
+                        titleName = titleName.replace("\"","“"); //防止文件名中带英文版"  无法保存文件
                         //获取发布时间
                         String publishDate = htmlElementLi.getElementsByTagName("span").get(0).asText();
                         log.info("detailUrl:{}\ntitleName:{}\npublishDate:{}",detailUrl,titleName,publishDate);
