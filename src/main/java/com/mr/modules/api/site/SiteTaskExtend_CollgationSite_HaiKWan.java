@@ -128,14 +128,16 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
 
                             }else{/*清单列表不是直接附件*/
                                 HtmlPage htmlPageDetail = webClientDetail.getPage(detailUrl);
+                                if(htmlPageDetail.getWebResponse().getStatusCode()==404){
+                                    log.warn("访问失败，目标URL可能不存在，返回404。URL为 {}",detailUrl);
+                                    continue;
+                                }
                                 Map map = parseDetailPage(htmlPageDetail,baseUrl,detailUrl,titleName,publishDate,source,area);
                                 attachmentName  = map.get("attachmentName").toString();
                                 nextPageFlag = (boolean)map.get("nextPageFlag");
                                 text = map.get("text").toString();
                                 htmlText = map.get("html").toString();
                             }
-
-
                         } catch (IOException ioe){
                             log.error("网页处理IO异常···"+ioe.getMessage());
                         }catch (Throwable throwable) {
@@ -143,6 +145,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         }finally {
                             webClientDetail.close();
                         }
+                        mapAttr.put("title",titleName);
                         mapAttr.put("text",text);
                         mapAttr.put("sourceUrl",detailUrl);
                         mapAttr.put("publishDate",publishDate);

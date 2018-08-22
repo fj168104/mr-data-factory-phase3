@@ -104,7 +104,12 @@ ocr:
     app_id: 11641746
     app_key: amGikVFG3DMxS70DorUNUlvR
     secret_key: 1Ze4bta22sW70V5bvlexbnB8b5kbNXqG
-
+    #app_key: YsZKG1wha34PlDOPYaIrIIKO
+    #secret_key: HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD
+#NLP_Ner API
+nlp:
+  ner:
+    url:  http://api.microrule.com/nlp/ner
 
 ---
 
