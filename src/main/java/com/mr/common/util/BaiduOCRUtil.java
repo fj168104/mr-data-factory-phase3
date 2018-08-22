@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
+import com.mr.framework.ocr.OcrUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -430,7 +431,34 @@ public class BaiduOCRUtil {
      * @return
      * @throws Exception
      */
-    public static String getTextStrFromPDFFile(String filePath, String attachmentName, String separator) {
+    public static String getTextStrFromPDFFile(String filePath, String attachmentName, String separator) throws Exception {
+        //将pdf转换为图片
+        OcrUtils ocrUtil = new OcrUtils(filePath);
+        String dirFile = ocrUtil.image2Dir(attachmentName, false);
+
+        File testDataDir = new File(dirFile);
+        //listFiles()方法是返回某个目录下所有文件和目录的绝对路径，返回的是File数组
+        File[] files = testDataDir.listFiles();
+        int imgCount = files.length;
+//		log.info("tessdata目录下共有 " + imgCount + " 个文件/文件夹");
+        //解析image
+        StringBuilder sbs = new StringBuilder();
+        for (int i = imgCount - 1; i >= 0; i--) {
+            sbs.append(getTextStrFromImageFile(files[i].getAbsolutePath(), separator));
+        }
+        //删除文件夹 dirName
+        FileUtil.del(dirFile);
+
+        return sbs.toString();
+    }
+
+    /**
+     * 解析PDF中的图片成文本
+     *
+     * @return
+     * @author pxu 2018-08-22
+     */
+    public static String getTextStrFromPDFImg(String filePath, String attachmentName, String separator) {
         if (!attachmentName.toLowerCase().endsWith(".pdf")) {
             log.warn("{}/{} is not pdf file，can not convert to image！", filePath, attachmentName);
             return "";
@@ -440,7 +468,7 @@ public class BaiduOCRUtil {
         //解析image
         StringBuilder sbs = new StringBuilder();
         for (File f : pngList) {
-            sbs.append(getTextStrFromImageFile(f.getAbsolutePath(), separator));
+            sbs.append(getTextStrFromImageFile(f.getAbsolutePath(), separator));//调用OCR
             //FileUtil.del(f);//删除png文件
         }
         return sbs.toString();
