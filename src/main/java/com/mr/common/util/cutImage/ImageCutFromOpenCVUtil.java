@@ -18,9 +18,6 @@ import java.util.*;
 @Slf4j
 public class ImageCutFromOpenCVUtil {
 
-    @Value("${system_java_lib_opencv}")
-    private  String SYSTEM_JAVA_LIB_OPENCV ;
-
     public static void main(String[] args){
         //加载系统OpenCV包文件
         /*if(SYSTEM_JAVA_LIB_OPENCV == null){
