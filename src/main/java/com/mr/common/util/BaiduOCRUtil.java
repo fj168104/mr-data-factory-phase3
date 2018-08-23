@@ -3,6 +3,7 @@ package com.mr.common.util;
 import com.baidu.aip.ocr.AipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
+import com.mr.framework.core.io.IoUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
 import com.mr.framework.ocr.OcrUtils;
@@ -464,11 +465,11 @@ public class BaiduOCRUtil {
             return "";
         }
         //将pdf转换为图片
-        List<File> pngList = pdf2image(filePath + File.separator + attachmentName, false);
+        List<File> pngList = pdf2image(filePath, attachmentName, false);
         //解析image
         StringBuilder sbs = new StringBuilder();
         for (File f : pngList) {
-            sbs.append(getTextStrFromImageFile(f.getAbsolutePath(), separator));//调用OCR
+            sbs.append(getTextStrFromImageFile(f.getPath(), separator));//调用OCR
             //FileUtil.del(f);//删除png文件
         }
         return sbs.toString();
@@ -477,20 +478,22 @@ public class BaiduOCRUtil {
     /**
      * PDF转换成图片
      *
-     * @param pdfName    PDF文件(绝对路径)
+     * @param pdfPath    PDF文件路径
+     * @param pdfName    PDF文件
      * @param needDelete 转换完成后，是否需要删除PDF原文件
      * @return pngList 转换后的png格式文件列表
      */
-    public static List<File> pdf2image(String pdfName, boolean needDelete) {
+    public static List<File> pdf2image(String pdfPath, String pdfName, boolean needDelete) {
         List<File> pngList = new ArrayList<>();
-        File file = new File(pdfName);
+        File file = new File(pdfPath + File.separator + pdfName);
+        PDDocument doc = null;
         try {
-            PDDocument doc = PDDocument.load(file);
+            doc = PDDocument.load(file);
             PDFRenderer renderer = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
             for (int i = 0; i < pageCount; ++i) {
                 BufferedImage image = renderer.renderImageWithDPI(i, 96.0F);//读取pdf
-                File pngFile = new File(file.getParentFile(), i + ".png");
+                File pngFile = new File(pdfPath, i + ".png");
                 ImageIO.write(image, "PNG", pngFile);//写png文件
                 pngList.add(pngFile);
             }
@@ -500,6 +503,8 @@ public class BaiduOCRUtil {
             doc.close();
         } catch (IOException e) {
             log.warn("convert pdf to image failed...", e);
+        } finally {
+            IOUtils.closeQuietly(doc);
         }
         return pngList;
     }
