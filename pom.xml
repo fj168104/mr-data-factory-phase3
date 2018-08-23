@@ -244,12 +244,16 @@
             <version>${lombok.version}</version>
         </dependency>
 
-        <dependency>
+<!--        <dependency>
             <groupId>com.github.lafa.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>1.0.1</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.11</version>
         </dependency>
-
 
         <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
