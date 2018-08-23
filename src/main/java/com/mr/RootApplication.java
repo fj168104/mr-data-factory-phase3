@@ -25,18 +25,21 @@ public class RootApplication {
 
        SpringApplication.run(RootApplication.class, args);
 
-       String systemType = System.getProperty("os.name");
-
+        /**
+         * 部署程序，需要将opencv_java341.dll或者linux(so)或者Mac(dylib)放到相应目录：path
+         */
        log.info("程序加载···opencv···中！");
-       /**
-        * 部署程序，需要将opencv_java341.dll或者os放到相应目录：DOWNLOAD_DIR
-        */
+       String systemType = System.getProperty("os.name");
+       String path = OCRUtil.DOWNLOAD_DIR;
        if(systemType.toLowerCase().startsWith("win")){
-           System.load(OCRUtil.DOWNLOAD_DIR+File.separator+"opencv_java341.dll");
+           System.load(path+File.separator+"opencv_java341.dll");
+       }else if(systemType.toLowerCase().startsWith("mac")) {
+           System.load(path+File.separator+"opencv_java341.dylib");
        }else {
-           System.load(OCRUtil.DOWNLOAD_DIR+File.separator+"opencv_java341.os");
+           System.load(path+File.separator+"opencv_java341.so");
        }
        log.info("程序加载···opencv···完成！");
        log.info("****************************程序运行在{} 上*****************************",systemType);
     }
+
 }
