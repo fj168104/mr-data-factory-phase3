@@ -23,6 +23,7 @@ public class NLP_Ner_API {
      */
     public static String nerAPI(Map<String,Object> map){
         if(url==null){
+            log.info("获取了默认NER的地址···");
             url = "http://api.microrule.com/nlp/ner";
         }
         String str = "";
