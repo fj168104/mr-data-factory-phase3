@@ -81,7 +81,7 @@ public class MOFCOM_SXBG extends SiteTaskExtend_CollgationSite{
         //获取总页码
         pageAllSize = achievePageAll(urlNext,"","");
         //翻页
-        for(int n=220;n<pageAllSize;n++){//并发处理
+        for(int n=1;n<pageAllSize;n++){//并发处理
             int m = n;
             log.info("**********************************第 {} 页*******************************",m);
             String urln = "http://www.ipraction.gov.cn/article/xxgk/shxy/sxbg/?"+m;
@@ -250,9 +250,27 @@ public class MOFCOM_SXBG extends SiteTaskExtend_CollgationSite{
                                 try {
                                     String[] strFile = file.split("\\.");
                                     int maxIndex = strFile.length-1;
-                                    String flieName = urlTitle+"."+strFile[maxIndex];
-                                    scrapyData.setAttachmentType(strFile[maxIndex]);
+                                    //附件后缀名
+                                    String stuff = strFile[maxIndex];
+                                    String flieName = urlTitle+"."+stuff;
+                                    scrapyData.setAttachmentType(stuff);
                                     saveFile(page,flieName,filePath);
+
+                                    /**
+                                     * 附件解析处理
+                                     */
+                                    if(stuff.contains("jpg")||stuff.contains("jpeg")||stuff.contains("png")||stuff.contains("tif")||stuff.contains("bmp")||stuff.contains("gif")){
+                                        //表格图片切分处理
+                                        log.info("表格图片切分处理，图片附件处理中···"+flieName);
+                                        text = text + imageCutFromOpenCVUtil.imgTextExtract(filePath+File.separator,flieName,OCRUtil.DOWNLOAD_DIR+File.separator+"temp"+File.separator);
+                                    }else if(stuff.contains("doc")){
+                                        text = text+ocrUtil.getTextFromDoc(filePath+File.separator+flieName);
+                                    }else if(stuff.contains("xls")){
+                                        text = text+ ExcelUtil.textExtractXls(filePath+File.separator+flieName);
+                                    }else {
+                                        log.info("其他非处理附件···"+flieName);
+                                    }
+
                                 } catch (Exception e) {
                                     repeatFlag =true;
                                     log.error("非图片附件下载有异常·····"+e.getMessage());
