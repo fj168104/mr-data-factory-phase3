@@ -66,7 +66,7 @@ public class MOFCOM_SXBG extends SiteTaskExtend_CollgationSite{
     //数据来源
     String source = "国家商务部网站";
     //要提取的字段
-    String fields = "source,subject,url,enterprise_name,publish_date/punishDate,judge_no,title";
+    String fields = "url,source,enterprise_name,oper_result,oper_org publish_date";
     //唯一标识 注：一般为，title/JubgeNo+enterpriseName+publishdate/punishdate
 
     //总页数
