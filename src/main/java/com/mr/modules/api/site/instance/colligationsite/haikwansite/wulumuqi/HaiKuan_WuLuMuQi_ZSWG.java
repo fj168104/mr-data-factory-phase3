@@ -151,7 +151,7 @@ public class HaiKuan_WuLuMuQi_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan
      * @param content
      */
     private void parseText(Map<String, String> map, String content) {
-        if (StrUtil.isEmpty(content)) {
+        if (StrUtil.isBlank(content)) {
             return;
         }
         String oriContent = content;//不做任何处理的原始内容
