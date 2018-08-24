@@ -4,17 +4,32 @@ import com.mr.framework.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hwpf.HWPFDocument;
-    import org.apache.poi.hwpf.model.PicturesTable;
-    import org.apache.poi.hwpf.usermodel.*;
-    import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-    import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-    import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.hwpf.model.PicturesTable;
+import org.apache.poi.hwpf.usermodel.CharacterRun;
+import org.apache.poi.hwpf.usermodel.Paragraph;
+import org.apache.poi.hwpf.usermodel.Picture;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.hwpf.usermodel.Table;
+import org.apache.poi.hwpf.usermodel.TableCell;
+import org.apache.poi.hwpf.usermodel.TableIterator;
+import org.apache.poi.hwpf.usermodel.TableRow;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFPictureData;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * WORD工具类
@@ -137,94 +152,103 @@ public class WordUtil {
 
     /**
      * 提取Doc/Docx中的图片
+     *
      * @param filePath
-     * @param fileName
-     * 命名方式为： 源文件名称+i+.jpg
+     * @param fileName 命名方式为： 源文件名称+i+.jpg
      */
 
-    public static List<String> getImgFromDoc(String filePath,String fileName){
+    public static List<String> getImgFromDoc(String filePath, String fileName) {
         List<String> fileNameList = new ArrayList<>();
-        if(fileName.endsWith(".doc")){
-            fileNameList.addAll(getImgConvertDoc(filePath,fileName));
-        }else {
-            fileNameList.addAll(getImgConvertDocx(filePath,fileName));
+        if (fileName.endsWith(".doc")) {
+            fileNameList.addAll(getImgConvertDoc(filePath, fileName));
+        } else {
+            fileNameList.addAll(getImgConvertDocx(filePath, fileName));
         }
         return fileNameList;
     }
+
     /**
      * 提取Doc中的图片
+     *
      * @param filePath
-     * @param fileName
-     * 命名方式为： 源文件名称+i+.jpg
+     * @param fileName 命名方式为： 源文件名称+i+.jpg
      */
-    public static List<String> getImgConvertDoc(String filePath,String fileName){
+    public static List<String> getImgConvertDoc(String filePath, String fileName) {
         List<String> fileNameList = new ArrayList<>();
+        FileInputStream in = null;
         try {
             log.info("****************Doc开始****************");
-            FileInputStream in=new FileInputStream(new File(filePath+File.separator+fileName));
-            HWPFDocument doc=new HWPFDocument(in);
-            int length=doc.characterLength();
-            PicturesTable pTable=doc.getPicturesTable();
-            for (int i=0;i<length;i++){
-                Range range=new Range(i, i+1,doc);
-                CharacterRun cr=range.getCharacterRun(0);
-                if(pTable.hasPicture(cr)){
-                    Picture pic=pTable.extractPicture(cr, false);
-                    String afileName=pic.suggestFullFileName();
-                    String fileAbsolute = filePath+File.separator+fileName.split("\\.")[0]+"_"+afileName;
-                    log.info("生成的文件全名称为：{}",fileAbsolute);
-                    OutputStream out=new FileOutputStream(new File(fileAbsolute));
+            in = new FileInputStream(new File(filePath + File.separator + fileName));
+            HWPFDocument doc = new HWPFDocument(in);
+            int length = doc.characterLength();
+            PicturesTable pTable = doc.getPicturesTable();
+            for (int i = 0; i < length; i++) {
+                Range range = new Range(i, i + 1, doc);
+                CharacterRun cr = range.getCharacterRun(0);
+                if (pTable.hasPicture(cr)) {
+                    Picture pic = pTable.extractPicture(cr, false);
+                    String fileAbsolute = filePath + File.separator + fileName.split("\\.")[0] + "_" + pic.suggestFullFileName();
+                    log.info("生成的文件全名称为：{}", fileAbsolute);
+                    OutputStream out = new FileOutputStream(new File(fileAbsolute));
                     pic.writeImageContent(out);
                     fileNameList.add(fileAbsolute);
-
+                    // 将emf转为png
+                    //emfConversionPng(fileNameList);
+                    if (out != null) {
+                        out.close();
+                    }
                 }
             }
-        }catch (FileNotFoundException fe){
-            log.error("doc文本中的图片提取发生FileNotFoundException，请查阅···"+fe.getMessage());
-        }catch (IOException ie){
-            log.error("doc文本中的图片提取发生IOException，请查阅···"+ie.getMessage());
+        } catch (FileNotFoundException fe) {
+            log.error("doc文本中的图片提取发生FileNotFoundException，请查阅···" + fe.getMessage());
+        } catch (IOException ie) {
+            log.error("doc文本中的图片提取发生IOException，请查阅···" + ie.getMessage());
+        } finally {
+            IOUtils.closeQuietly(in);
         }
         log.info("****************Doc结束****************");
         return fileNameList;
-
     }
+
     /**
      * 提取Docx中的图片
+     *
      * @param filePath
-     * @param fileName
-     * 命名方式为： 源文件名称+i+.jpg
+     * @param fileName 命名方式为： 源文件名称+i+.jpg
      */
-    public static List<String> getImgConvertDocx(String filePath,String fileName){
+    public static List<String> getImgConvertDocx(String filePath, String fileName) {
         List<String> fileNameList = new ArrayList<>();
         log.info("****************Docx开始****************");
-        File file = new File(filePath+File.separator+fileName);
+        File file = new File(filePath + File.separator + fileName);
         try {
             FileInputStream fis = new FileInputStream(file);
             XWPFDocument document = new XWPFDocument(fis);
             XWPFWordExtractor xwpfWordExtractor = new XWPFWordExtractor(document);
             String text = xwpfWordExtractor.getText();
             List<XWPFPictureData> picList = document.getAllPictures();
-            for (int i = 0;i<picList.size();i++) {
+            for (int i = 0; i < picList.size(); i++) {
                 XWPFPictureData xwpfPictureData = picList.get(i);
                 byte[] bytev = xwpfPictureData.getData();
-                String fileAbsolute = filePath+File.separator+fileName.split("\\.")[0]+"_"+i+".jpg";
-                log.info("生成的文件全名称为：{}",fileAbsolute);
+                String fileAbsolute = filePath + File.separator + fileName.split("\\.")[0] + "_" + i + ".jpg";
+                log.info("生成的文件全名称为：{}", fileAbsolute);
                 FileOutputStream fos = new FileOutputStream(fileAbsolute);
                 fos.write(bytev);
+                fileNameList.add(fileAbsolute);
             }
             fis.close();
-        }catch (FileNotFoundException fe){
-            log.error("docx文本中的图片提取发生FileNotFoundException，请查阅···"+fe.getMessage());
-        }catch (IOException ie){
-            log.error("docx文本中的图片提取发生IOException，请查阅···"+ie.getMessage());
+        } catch (FileNotFoundException fe) {
+            log.error("docx文本中的图片提取发生FileNotFoundException，请查阅···" + fe.getMessage());
+        } catch (IOException ie) {
+            log.error("docx文本中的图片提取发生IOException，请查阅···" + ie.getMessage());
         }
         log.info("****************Docx结束****************");
         return fileNameList;
     }
+
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\Space\\Desktop";
-        String fileName ="新建 Microsoft Word 文档.docx";
-        getImgFromDoc(filePath,fileName);
+        String filePath = "F:\\home\\fengjiang\\Documents\\haikwansite\\huhehaote\\b8a6dcd8100ef65c43463c5df82ca08c";
+        String fileName = "中华人民共和国二连海关行政处罚决定书（二关缉决字【2016】0091号）1.doc";
+        getImgFromDoc(filePath, fileName);
         //getImgDocx(path);
         /*List<List<List<String>>> tableList = readWordTable("E:\\ChromeDownload\\P020160920512946160717.doc");
         for (List<List<String>> rowList : tableList) {

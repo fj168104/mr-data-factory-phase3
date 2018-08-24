@@ -311,6 +311,12 @@
             <version>2.6.12</version>
         </dependency>
 
+        <!--图片压缩工具-->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.8</version>
+        </dependency>
 
         <!--腾讯AI开放平台SDK-->
         <dependency>
