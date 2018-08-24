@@ -107,7 +107,7 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
         //设置Ajax异步处理控制器即启用Ajax支持
         wc.setAjaxController(new NicelyResynchronizingAjaxController());
         //设置超时时间
-        wc.getOptions().setTimeout(20000);
+        //wc.getOptions().setTimeout(20000);
         //不跟踪抓取
         wc.getOptions().setDoNotTrackEnabled(false);
         //启动客户端重定向
