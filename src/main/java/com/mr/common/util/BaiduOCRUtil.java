@@ -3,7 +3,6 @@ package com.mr.common.util;
 import com.baidu.aip.ocr.AipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
-import com.mr.framework.core.io.IoUtil;
 import com.mr.framework.core.lang.ObjectId;
 import com.mr.framework.core.util.StrUtil;
 import com.mr.framework.ocr.OcrUtils;
@@ -249,6 +248,11 @@ public class BaiduOCRUtil {
         List<String> resultList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
+                String fPath = filePath.toUpperCase().trim();
+                if (!fPath.endsWith(".JPG") && !fPath.endsWith(".PNG") && !fPath.endsWith(".BMP") && !fPath.endsWith(".JPEG")) {
+                    log.warn("[百度OCR]不支持的图片格式，目前支持jpg,jpeg,png,bmp图片格式");
+                    break;
+                }
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.basicGeneral(filePath, options).toString(2);
                 log.debug(result);

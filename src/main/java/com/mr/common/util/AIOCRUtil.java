@@ -13,6 +13,9 @@ import java.util.List;
 
 /**
  * 腾讯AI开放平台OCR识别工具
+ * <p>
+ * 图片格式支持jpg,png,bmp
+ * 图片大小限制为1M
  *
  * @author pxu 2018/8/6 16:21
  */
@@ -96,6 +99,7 @@ public class AIOCRUtil {
                 byte[] bImg = IOUtils.toByteArray(new URL(url));
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.generalOcr(bImg);
+                log.debug(result);
                 if (getGeneralResult(sText, result, separator)) {
                     break;
                 }
@@ -172,6 +176,11 @@ public class AIOCRUtil {
         StringBuilder sText = new StringBuilder();
         for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
+                String fPath = filePath.toUpperCase().trim();
+                if (!fPath.endsWith(".JPG") && !fPath.endsWith(".PNG") && !fPath.endsWith(".BMP")) {
+                    log.warn("[腾讯OCR]不支持的图片格式，目前支持jpg,png,bmp图片格式");
+                    break;
+                }
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.generalOcr(filePath);
                 log.debug(result);

@@ -99,6 +99,8 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         String hashKeyFilePath = OCRUtil.DOWNLOAD_DIR+ File.separator+"haikwansite"+File.separator+area+File.separator+ MD5Util.encode(detailUrl);                   //打开附件
                         //附件类型名称
                         String attachmentName = "";
+                        //附件集合
+                        StringBuilder attachmentSbs = new StringBuilder();
                         //操作详情界面
                         WebClient webClientDetail = null;
                         try {
@@ -135,6 +137,14 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                                 }
                                 Map map = parseDetailPage(htmlPageDetail,baseUrl,detailUrl,titleName,publishDate,source,area);
                                 attachmentName  = map.get("attachmentName").toString();
+                                List<String> attachmentLists=(List<String>)map.get("attachmentPath");
+                                for(int i=0;i< attachmentLists.size();i++){//拼接全部的附件路径
+                                    if(i==0){
+                                        attachmentSbs.append(attachmentLists.get(i));
+                                    }else{
+                                        attachmentSbs.append("@!@").append(attachmentLists.get(i));
+                                    }
+                                }
                                 nextPageFlag = (boolean)map.get("nextPageFlag");
                                 text = map.get("text").toString();
                                 htmlText = map.get("html").toString();
@@ -151,6 +161,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         mapAttr.put("sourceUrl",detailUrl);
                         mapAttr.put("publishDate",publishDate);
                         mapAttr.put("attachmentName",attachmentName);
+                        mapAttr.put("attachmentList",attachmentSbs.toString());//全部附件的文件路径列表
                         mapAttr.put("filePath",hashKeyFilePath);
                         mapAttr.put("html",htmlText);
                         /**
@@ -230,6 +241,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
         String attachmentType = "";
         String htmlText = "";
         String hashKeyFilePath = "";
+        List<String> attachmentPath=new ArrayList<>();//下载的附件本地路径
         List<HtmlElement> htmlElements = htmlPage.getByXPath("//div[@class='easysite-news-text']");
         if(htmlElements.size()>0){
             HtmlElement htmlElement = htmlElements.get(0);
@@ -259,6 +271,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         if(attachmentTypeStr.length>1){
                             attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
                             attachmentName = titleName+(count++)+"."+attachmentType;
+                            attachmentPath.add(hashKeyFilePath+File.separator+attachmentName);
                             saveFile(page,attachmentName,hashKeyFilePath);
                         }
                         /*//准备入库操作
@@ -295,6 +308,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
                         if(attachmentTypeStr.length>1){
                             attachmentType =attachmentTypeStr[attachmentTypeStr.length-1];
                             attachmentName = titleName+(count++)+"."+attachmentType;
+                            attachmentPath.add(hashKeyFilePath+File.separator+attachmentName);
                             saveFile(page,attachmentName,hashKeyFilePath);
                         }
                         /*//准备入库操作
@@ -345,6 +359,7 @@ public class SiteTaskExtend_CollgationSite_HaiKWan extends SiteTaskExtend_Collga
             nextPageFlag = saveScrapyDataOne(scrapyData,false);
 
         }
+        map.put("attachmentPath",attachmentPath);//附件路径集合
         map.put("text",text);
         map.put("attachmentName",attachmentName);
         map.put("nextPageFlag",nextPageFlag);
