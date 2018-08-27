@@ -8,6 +8,7 @@ import com.mr.framework.core.util.StrUtil;
 import com.mr.framework.ocr.OcrUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -536,19 +537,13 @@ public class BaiduOCRUtil {
         File dirFile = new File(filePath + File.separator + dirs[0]);
         FileUtil.mkdir(dirFile);
         FileUtil.copy(entirePathName, dirFile + File.separator + attachmentName, true);
-        ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
+        List<String> jpgList = ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
         FileUtil.del(dirFile + File.separator + attachmentName);
 
         //ocr 识别 jpg
-        File testDataDir = new File(dirFile.getAbsolutePath());
-        //listFiles()方法是返回某个目录下所有文件和目录的绝对路径，返回的是File数组
-        File[] files = testDataDir.listFiles();
-        int imgCount = files.length;
-//		log.info("tessdata目录下共有 " + imgCount + " 个文件/文件夹");
-        //解析image
         StringBuilder sbs = new StringBuilder();
-        for (int i = imgCount - 1; i >= 0; i--) {
-            sbs.append(getTextStrFromImageFile(files[i].getAbsolutePath(), separator));
+        for (String jpg : jpgList) {
+            sbs.append(getTextStrFromImageFile(jpg, separator));
         }
         //删除文件夹 dirName
         FileUtil.del(dirFile);

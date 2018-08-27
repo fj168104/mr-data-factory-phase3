@@ -2,12 +2,15 @@ package com.mr.common.util;
 
 import cn.xsshome.taip.ocr.TAipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mr.framework.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
@@ -249,6 +252,49 @@ public class AIOCRUtil {
             sbs.append(getTextFromImageFile(f.getPath())).append(separator);//调用OCR
             //FileUtil.del(f);//删除png文件
         }
+        return sbs.toString();
+    }
+
+    /**
+     * 解析TIF
+     *
+     * @return
+     */
+    public static String getTextStrFromTIFFile(String filePath, String attachmentName) {
+        return getTextStrFromTIFFile(filePath, attachmentName, "\n");//默认为换行分隔符
+    }
+
+    /**
+     * 解析TIF
+     *
+     * @return
+     * @throws Exception
+     */
+    public static String getTextStrFromTIFFile(String filePath, String attachmentName, String separator) {
+        //将tif转换为jpg图片
+        String entirePathName = filePath + File.separator + attachmentName;
+        String[] dirs = attachmentName.split("\\.");
+        File dirFile = new File(filePath + File.separator + dirs[0]);
+        FileUtil.mkdir(dirFile);
+        FileUtil.copy(entirePathName, dirFile + File.separator + attachmentName, true);
+        List<String> jpgList = ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
+        FileUtil.del(dirFile + File.separator + attachmentName);
+
+        StringBuilder sbs = new StringBuilder();
+        for (String jpg : jpgList) {
+            File f = new File(jpg);
+            if (f.length() > (1024 * 1024)) {//图片大于1M，进行压缩
+                try {
+                    Thumbnails.of(f).scale(1f).outputQuality(0.6f).toFile(jpg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            sbs.append(getTextFromImageFile(createTengXunAipOcrClient(), jpg, separator));
+        }
+        //删除文件夹 dirName
+        FileUtil.del(dirFile);
+
         return sbs.toString();
     }
 
