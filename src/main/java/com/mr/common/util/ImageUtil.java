@@ -32,7 +32,7 @@ public class ImageUtil {
     public static void compressImg(long targetLength, String imgPath) {
         File f = new File(imgPath);
         int iTime = 0;//记录压缩次数
-        while (f.length() > targetLength) {//图片大于1M，进行压缩
+        while (f.length() > targetLength) {//图片大于目标大小，进行压缩
             log.info("第{}次压缩{}，当前图片大小{},目标大小{}", ++iTime, imgPath, f.length(), targetLength);
             try {
                 //每次按照如下参数进行压缩
