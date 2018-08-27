@@ -4,13 +4,12 @@ import cn.xsshome.taip.ocr.TAipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mr.framework.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
 
@@ -184,6 +183,10 @@ public class AIOCRUtil {
                     log.warn("[腾讯OCR]不支持的图片格式，目前支持jpg,png,bmp图片格式");
                     break;
                 }
+                if (!new File(filePath).exists()) {
+                    throw new FileNotFoundException("文件" + filePath + "不存在");
+                }
+                ImageUtil.compressImgTo1M(filePath);//压缩图片至1M以下
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.generalOcr(filePath);
                 log.debug(result);
@@ -249,6 +252,7 @@ public class AIOCRUtil {
         //解析image
         StringBuilder sbs = new StringBuilder();
         for (File f : pngList) {
+            ImageUtil.compressImgTo1M(f.getPath());//压缩图片至1M以下
             sbs.append(getTextFromImageFile(f.getPath())).append(separator);//调用OCR
             //FileUtil.del(f);//删除png文件
         }
@@ -282,14 +286,7 @@ public class AIOCRUtil {
 
         StringBuilder sbs = new StringBuilder();
         for (String jpg : jpgList) {
-            File f = new File(jpg);
-            if (f.length() > (1024 * 1024)) {//图片大于1M，进行压缩
-                try {
-                    Thumbnails.of(f).scale(1f).outputQuality(0.6f).toFile(jpg);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            ImageUtil.compressImgTo1M(jpg);//压缩图片至1M以下
             sbs.append(getTextFromImageFile(createTengXunAipOcrClient(), jpg, separator));
         }
         //删除文件夹 dirName

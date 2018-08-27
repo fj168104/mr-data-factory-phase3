@@ -251,7 +251,7 @@ public class BaiduOCRUtil {
             try {
                 String fPath = filePath.toUpperCase().trim();
                 if (!fPath.endsWith(".JPG") && !fPath.endsWith(".PNG") && !fPath.endsWith(".BMP") && !fPath.endsWith(".JPEG")) {
-                    log.warn("[百度OCR]不支持的图片格式，目前支持jpg,jpeg,png,bmp图片格式");
+                    log.warn("[百度OCR]不支持的图片格式，目前支持jpg,jpeg,png,bmp图片格式。filePath={}", fPath);
                     break;
                 }
                 //访问通用OCR识别，获取结果
