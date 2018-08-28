@@ -146,12 +146,6 @@ public class HaiKuan_HuangPu_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
                 return;
             }
             List<String> imgList = WordUtil.getImgFromDoc(filePath, attachmentName);//从word中提取图片
-            for (String img : imgList) {
-                File f = new File(img);
-                if (f.length() > (1024 * 1024)) {//图片大于1M，进行压缩
-                    Thumbnails.of(f).scale(1f).outputQuality(0.6f).toFile(img);
-                }
-            }
             if (imgList.size() == 0) {
                 return;
             }
