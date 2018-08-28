@@ -2,12 +2,14 @@ package com.mr.common.util;
 
 import cn.xsshome.taip.ocr.TAipOcr;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mr.framework.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
 
@@ -181,6 +183,10 @@ public class AIOCRUtil {
                     log.warn("[腾讯OCR]不支持的图片格式，目前支持jpg,png,bmp图片格式");
                     break;
                 }
+                if (!new File(filePath).exists()) {
+                    throw new FileNotFoundException("文件" + filePath + "不存在");
+                }
+                ImageUtil.compressImgTo1M(filePath);//压缩图片至1M以下
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.generalOcr(filePath);
                 log.debug(result);
@@ -246,9 +252,46 @@ public class AIOCRUtil {
         //解析image
         StringBuilder sbs = new StringBuilder();
         for (File f : pngList) {
+            ImageUtil.compressImgTo1M(f.getPath());//压缩图片至1M以下
             sbs.append(getTextFromImageFile(f.getPath())).append(separator);//调用OCR
             //FileUtil.del(f);//删除png文件
         }
+        return sbs.toString();
+    }
+
+    /**
+     * 解析TIF
+     *
+     * @return
+     */
+    public static String getTextStrFromTIFFile(String filePath, String attachmentName) {
+        return getTextStrFromTIFFile(filePath, attachmentName, "\n");//默认为换行分隔符
+    }
+
+    /**
+     * 解析TIF
+     *
+     * @return
+     * @throws Exception
+     */
+    public static String getTextStrFromTIFFile(String filePath, String attachmentName, String separator) {
+        //将tif转换为jpg图片
+        String entirePathName = filePath + File.separator + attachmentName;
+        String[] dirs = attachmentName.split("\\.");
+        File dirFile = new File(filePath + File.separator + dirs[0]);
+        FileUtil.mkdir(dirFile);
+        FileUtil.copy(entirePathName, dirFile + File.separator + attachmentName, true);
+        List<String> jpgList = ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
+        FileUtil.del(dirFile + File.separator + attachmentName);
+
+        StringBuilder sbs = new StringBuilder();
+        for (String jpg : jpgList) {
+            ImageUtil.compressImgTo1M(jpg);//压缩图片至1M以下
+            sbs.append(getTextFromImageFile(createTengXunAipOcrClient(), jpg, separator));
+        }
+        //删除文件夹 dirName
+        FileUtil.del(dirFile);
+
         return sbs.toString();
     }
 

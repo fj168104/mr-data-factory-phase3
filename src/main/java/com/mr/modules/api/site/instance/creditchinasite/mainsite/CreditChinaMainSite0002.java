@@ -1,7 +1,6 @@
 package com.mr.modules.api.site.instance.creditchinasite.mainsite;
 
 import com.mr.modules.api.mapper.AdminPunishMapper;
-import com.mr.modules.api.model.AdminPunish;
 import com.mr.modules.api.site.SiteTaskExtend_CreditChina;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -9,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -22,6 +22,7 @@ import java.util.*;
  */
 @Slf4j
 @Component("creditchinamainsite0002")
+@Scope("prototype")
 public class CreditChinaMainSite0002 extends SiteTaskExtend_CreditChina{
     String url ="https://www.creditchina.gov.cn/xinxigongshi/huanbaolingyu/201804/t20180419_113582.html";
 

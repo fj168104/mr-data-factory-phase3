@@ -1,6 +1,5 @@
 package com.mr.modules.api.xls.importfile.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mr.modules.api.xls.importfile.FileImportor;
@@ -10,14 +9,20 @@ import com.mr.modules.api.xls.importfile.domain.common.ImportCell;
 import com.mr.modules.api.xls.importfile.domain.common.ImportResult;
 import com.mr.modules.api.xls.importfile.exception.FileImportException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -145,9 +150,14 @@ public class ExcelImportor extends FileImportor {
                     break;
 
                 case STRING:
-                    String temp = null;
+                    String temp;
                     if (rawCellType == Cell.CELL_TYPE_NUMERIC) {
-                        temp = String.valueOf(cell.getNumericCellValue());
+                        if(HSSFDateUtil.isCellDateFormatted(cell)){//判断是否为日期格式
+                            Date d = cell.getDateCellValue();
+                            temp = new SimpleDateFormat("yyyy-MM-dd").format(d);
+                        }else{
+                            temp = String.valueOf(cell.getNumericCellValue());
+                        }
                         maps.put(key, temp);
                         break;
                     }
