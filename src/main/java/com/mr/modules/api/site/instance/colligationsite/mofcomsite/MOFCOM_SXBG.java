@@ -332,7 +332,7 @@ public class MOFCOM_SXBG extends SiteTaskExtend_CollgationSite{
         Map<String,Object> mapNer = new HashMap<>();
         mapNer.put("text",mapAttr.get("text").replace("公司","公司，").replace("厂","厂，"));
         try {
-            JsonNode jsonNode = JsonUtil.getJson(NLP_Ner_API.nerAPI(mapNer));
+            JsonNode jsonNode = JsonUtil.getJson(new NLP_Ner_API().nerAPI(mapNer));
             ArrayNode person = (ArrayNode)jsonNode.get("person");
             ArrayNode organization = (ArrayNode)jsonNode.get("organization");
             ArrayNode location = (ArrayNode)jsonNode.get("location");
