@@ -102,14 +102,25 @@ ocr:
   #百度云
   baip:
     app_id: 11641746
-    app_key: amGikVFG3DMxS70DorUNUlvR
-    secret_key: 1Ze4bta22sW70V5bvlexbnB8b5kbNXqG
-    #app_key: YsZKG1wha34PlDOPYaIrIIKO
-    #secret_key: HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD
+    #app_key: amGikVFG3DMxS70DorUNUlvR
+    #secret_key: 1Ze4bta22sW70V5bvlexbnB8b5kbNXqG
+    app_key: YsZKG1wha34PlDOPYaIrIIKO
+    secret_key: HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD
+    #------------------------------------------
+    #APP_ID = '11635479'
+    #API_KEY = 'y52YctCoPhY8KRwtzoFliKsU'
+    #SECRET_KEY = 'GawZoudCnmRhqq1lDbqkpgky3rpsmk8G'
 #NLP_Ner API
 nlp:
   ner:
-    url:  http://api.microrule.com/nlp/ner
+    url: http://api.microrule.com/nlp/ner
+    orgid: zt
+    orgkey: e86bdd5d8908079d1ed4c06015f37eb0
+#配置是否启用固定代理,默认不启用：false，启用：true，
+proxyfixed:
+  flag: false
+  ip: 203.142.34.37
+  port: 52335
 
 ---
 
@@ -151,6 +162,7 @@ logging:
 publicKey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKTusxtIrx4B0a5Pi5oUImdtQrkV9spQaUYv6xpCIoAtM50Yo9d9miMTWF145+wwScNaV5QF+r+jQ0DCZL0/+j8CAwEAAQ==
 password: Root@1234
 download-dir: F:/home/fengjiang/Documents
+#download-dir: /home/fengjiang/Documents
 ic-url: http://112.65.144.19:10003/edh/api
 
 
