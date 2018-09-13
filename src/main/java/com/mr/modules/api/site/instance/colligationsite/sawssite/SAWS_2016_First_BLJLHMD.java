@@ -1,6 +1,8 @@
 package com.mr.modules.api.site.instance.colligationsite.sawssite;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.mr.common.OCRUtil;
+import com.mr.common.util.CrawlerUtil;
 import com.mr.framework.core.io.FileUtil;
 import com.mr.framework.core.util.StrUtil;
 import com.mr.modules.api.model.AdminPunish;
@@ -36,7 +38,10 @@ public class SAWS_2016_First_BLJLHMD extends SiteTaskExtend_CollgationSite {
 
     @Override
     protected String execute() throws Throwable {
-        String htmlContent = getData(url);
+        WebClient client= CrawlerUtil.createDefaultWebClient();
+        client.getOptions().setJavaScriptEnabled(false);
+        String htmlContent = CrawlerUtil.getHtmlPage(client,url);
+        client.close();
         if (StrUtil.isEmpty(htmlContent)) {
             log.error("抓取{}页面内容失败");
             return null;
