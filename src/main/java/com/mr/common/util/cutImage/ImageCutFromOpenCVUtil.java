@@ -77,13 +77,14 @@ public class ImageCutFromOpenCVUtil {
         StringBuffer stringBuffer = new StringBuffer("");
         List<String> listFileName = imgCut(basePath,fileTempSourceName, fileTempPath);
         for(String strFileName :listFileName){
-            stringBuffer.append(BaiduOCRUtil.getTextStrFromImageFile(strFileName,"")).append(",");
+            stringBuffer.append(AIOCRUtil.getTextFromImageFile(strFileName)).append(",");
+
         }
         log.info("表格识别结果为：{}",stringBuffer.toString());
 
         if(stringBuffer.toString().trim().equals("")){
             for(String strFileName :listFileName){
-                stringBuffer.append(AIOCRUtil.getTextFromImageFile(strFileName)).append(",");
+                stringBuffer.append(BaiduOCRUtil.getTextStrFromImageFile(strFileName,"")).append(",");
             }
         }
         text = stringBuffer.toString();
@@ -93,7 +94,7 @@ public class ImageCutFromOpenCVUtil {
             fileDel.delete();
         }
 
-        return text.replaceAll("（","(").replaceAll("）",")").replaceAll("[\\s]{1,}","");
+        return text.replaceAll("（","(").replaceAll("）",")").replaceAll("[\\s]{1,}","").replaceAll("[\\,]{2,}",",");
     }
 
     /**
