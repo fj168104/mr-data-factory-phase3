@@ -38,7 +38,7 @@ import java.util.List;
 @Component("bonu_main")
 @Scope("prototype")
 public class BONU_Main extends SiteTaskExtend_CollgationSite {
-    private String source = "国统局（总局）";
+    private String source = "国家统计局";
     private String subject = "统计上严重失信企业";
     private String indexUrl = "http://www.stats.gov.cn/tjfw/sxqygs/gsxx/";
     private String hashKey_prefix = OCRUtil.DOWNLOAD_DIR + File.separator + "bonu_main" + File.separator;

@@ -29,7 +29,7 @@ import java.util.List;
 @Component("bonu_beijing")
 @Scope("prototype")
 public class BONU_BeiJin extends SiteTaskExtend_CollgationSite {
-    private String source = "国统局（北京）";
+    private String source = "北京市统计局";
     private String subject = "行政处罚结果信息公示";
     private String hashKey_prefix = OCRUtil.DOWNLOAD_DIR + File.separator + "bonu_beiJing" + File.separator;
 
