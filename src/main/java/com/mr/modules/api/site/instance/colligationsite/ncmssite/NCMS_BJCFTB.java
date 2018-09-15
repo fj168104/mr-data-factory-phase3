@@ -251,7 +251,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
                 for(JsonNode personName : person ){
                     Map<String,String> mapPunish = new HashMap<>();
                     if(personName.textValue().length()>1){
-                        mapPunish.put("source","全国建筑市场监管公共服务平台-部级处罚通报");
+                        mapPunish.put("source","全国建筑市场监管公共服务平台");
                         mapPunish.put("subject","部级处罚");
                         mapPunish.put("sourceUrl",urlDetail);
                         mapPunish.put("enterpriseName",personName.textValue());
@@ -265,7 +265,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
                 for(JsonNode enterpriseName : organization ){
                     if((enterpriseName.textValue().length()>3&&!enterpriseName.textValue().contains("厅")&&!enterpriseName.textValue().contains("委员会")&&!enterpriseName.textValue().contains("监督")&&!enterpriseName.textValue().contains("局")&&!enterpriseName.textValue().contains("部")&&!enterpriseName.textValue().contains("管理"))||enterpriseName.textValue().contains("公司")){
                         Map<String,String> mapPunish = new HashMap<>();
-                        mapPunish.put("source","全国建筑市场监管公共服务平台-部级处罚通报");
+                        mapPunish.put("source","全国建筑市场监管公共服务平台");
                         mapPunish.put("subject","部级处罚");
                         mapPunish.put("sourceUrl",urlDetail);
                         mapPunish.put("enterpriseName",enterpriseName.textValue());
