@@ -28,7 +28,7 @@ import java.util.List;
 @Scope("prototype")
 public class MOF_CGYZWFSXMD extends SiteTaskExtend_CollgationSite {
 
-    private String source = "财政部-采购公示网站";
+    private String source = "中国政府采购网";
     @Override
     protected String execute() throws Throwable {
 
@@ -74,7 +74,7 @@ public class MOF_CGYZWFSXMD extends SiteTaskExtend_CollgationSite {
                 adminPunish.setSource(source);
                 adminPunish.setSubject("政府采购严重违法失信行为记录名单");
                 adminPunish.setUniqueKey(baseUrl+"@"+entName+"@"+k+"@"+publishDate);
-                adminPunish.setUrl(baseUrl);
+                adminPunish.setUrl("http://www.ccgp.gov.cn/cr/list");
                 adminPunish.setEnterpriseCode1(code1);
                 adminPunish.setObjectType("01");
                 adminPunish.setEnterpriseName(entName);

@@ -35,10 +35,10 @@ public class NLP_Ner_API {
      */
     public  String nerAPI(Map<String,Object> map){
         log.info("nlp_ner_url:{}\n+nlp_ner_orgid:{}\n+nlp_ner_orgkey:{}",getUrl(),getOrgid(),getOrgkey());
-        if(getUrl().equals("")||getUrl()==null){
+        if(getUrl()==null||getUrl().equals("")){
             setOrgid( "zt");
         }
-        if(getOrgkey().equals("")||getOrgkey()==null){
+        if(getOrgkey()==null||getOrgkey().equals("")){
             setOrgkey(MD5Util.encode("zt"));
         }
         map.put("orgid",getOrgid());
@@ -50,7 +50,7 @@ public class NLP_Ner_API {
             //url = "http://localhost:8080/nlp/ner";
         }
         String str = "";
-        if(getUrl().equals("")||getUrl()==null||map.size()<1){
+        if(getUrl()==null||getUrl().equals("")||map.size()<1){
             str = "请检查传入的参数···";
         }else {
             str = HttpUtil.post(getUrl(),map);

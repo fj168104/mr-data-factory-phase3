@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,14 @@ import java.util.regex.Pattern;
 @Component("ncms_bjcftb")
 @Scope("prototype")
 public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
+    //固定代理属性配置
+    @Value("${proxyfixed.flag}")
+    private boolean fixedflag;
+    @Value("${proxyfixed.ip}")
+    private String fixedIP;
+    @Value("${proxyfixed.port}")
+    private int fixedPort;
+
     @Autowired
     OCRUtil ocrUtil;
     @Autowired
@@ -179,7 +188,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
 
             // TODO 存储在scrapyData表中
             //source	数据来源
-            mapScrapy.put("source","全国建筑市场监管公共服务平台-部级");
+            mapScrapy.put("source","全国建筑市场监管公共服务平台-部级处罚通报");
             //url	地址
             mapScrapy.put("sourceUrl",urlDetail);
             //hash_key	url的md5结果（如有附件，则保存在此目录中）
@@ -242,7 +251,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
                 for(JsonNode personName : person ){
                     Map<String,String> mapPunish = new HashMap<>();
                     if(personName.textValue().length()>1){
-                        mapPunish.put("source","全国建筑市场监管公共服务平台");
+                        mapPunish.put("source","全国建筑市场监管公共服务平台-部级处罚通报");
                         mapPunish.put("subject","部级处罚");
                         mapPunish.put("sourceUrl",urlDetail);
                         mapPunish.put("enterpriseName",personName.textValue());
@@ -256,7 +265,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
                 for(JsonNode enterpriseName : organization ){
                     if((enterpriseName.textValue().length()>3&&!enterpriseName.textValue().contains("厅")&&!enterpriseName.textValue().contains("委员会")&&!enterpriseName.textValue().contains("监督")&&!enterpriseName.textValue().contains("局")&&!enterpriseName.textValue().contains("部")&&!enterpriseName.textValue().contains("管理"))||enterpriseName.textValue().contains("公司")){
                         Map<String,String> mapPunish = new HashMap<>();
-                        mapPunish.put("source","全国建筑市场监管公共服务平台");
+                        mapPunish.put("source","全国建筑市场监管公共服务平台-部级处罚通报");
                         mapPunish.put("subject","部级处罚");
                         mapPunish.put("sourceUrl",urlDetail);
                         mapPunish.put("enterpriseName",enterpriseName.textValue());
@@ -278,7 +287,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
 
     }
 
-    public static WebClient createWebListClient(String ip, String port) throws Throwable{
+    public  WebClient createWebListClient(String ip, String port) throws Throwable{
         WebClient wc =  null;
         if ("".equals(ip) || "".equals(port)||ip==null||port==null) {
             wc = new WebClient(BrowserVersion.CHROME);
@@ -287,6 +296,12 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
             //获取代理对象
             wc = new WebClient(BrowserVersion.CHROME, ip,Integer.valueOf(port));
             log.info("通过代理进行处理···");
+        }
+        if(fixedflag==true){
+            log.info("系统通过固定代理IP进行处理···IP：{}，PORT：{}",fixedIP,fixedPort);
+            ProxyConfig proxyConfig = wc.getOptions().getProxyConfig();
+            proxyConfig.setProxyHost(fixedIP);
+            proxyConfig.setProxyPort(fixedPort);
         }
         //设置浏览器版本
         //是否使用不安全的SSL
@@ -319,7 +334,7 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
     }
 
 
-    public static WebClient createWebDetailClient(String ip, String port) throws Throwable{
+    public  WebClient createWebDetailClient(String ip, String port) throws Throwable{
         WebClient wc =  null;
         if ("".equals(ip) || "".equals(port)||ip==null||port==null) {
             wc = new WebClient(BrowserVersion.CHROME);
@@ -329,7 +344,12 @@ public class NCMS_BJCFTB extends SiteTaskExtend_CollgationSite{
             wc = new WebClient(BrowserVersion.CHROME, ip,Integer.valueOf(port));
             log.info("通过代理进行处理···");
         }
-
+        if(fixedflag==true){
+            log.info("系统通过固定代理IP进行处理···IP：{}，PORT：{}",fixedIP,fixedPort);
+            ProxyConfig proxyConfig = wc.getOptions().getProxyConfig();
+            proxyConfig.setProxyHost(fixedIP);
+            proxyConfig.setProxyPort(fixedPort);
+        }
         //设置浏览器版本
         //是否使用不安全的SSL
         wc.getOptions().setUseInsecureSSL(true);

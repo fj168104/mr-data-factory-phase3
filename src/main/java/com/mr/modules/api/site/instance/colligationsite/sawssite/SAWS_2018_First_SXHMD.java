@@ -77,7 +77,7 @@ public class SAWS_2018_First_SXHMD extends SiteTaskExtend_CollgationSite {
             String punishReason = (String)map.get("纳入理由");
             String punishType = "失信黑名单";
             AdminPunish adminPunish = new AdminPunish();
-            adminPunish.setSource("安全监管总局办公厅");
+            adminPunish.setSource("国家安全生产监督管理总局网站");
             adminPunish.setSubject("2018年第一批安全生产失信联合惩戒“黑名单”单位及其人员名单");
             adminPunish.setUniqueKey(reqUrl+"@"+entName+"@"+i+"@"+publishDate);
             adminPunish.setUrl(reqUrl);
@@ -117,7 +117,7 @@ public class SAWS_2018_First_SXHMD extends SiteTaskExtend_CollgationSite {
         scrapyData.setHtml(html);
         scrapyData.setText(text);
         scrapyData.setAttachmentType("xls");
-        scrapyData.setSource("安全监管总局办公厅");
+        scrapyData.setSource("国家安全生产监督管理总局网站");
         scrapyData.setFields("source,subject,url,enterprise_name,publish_date/punishDate,judge_no,title");
         if(scrapyDataMapper.selectCountByUrl(url)==0){
             scrapyDataMapper.insert(scrapyData);
