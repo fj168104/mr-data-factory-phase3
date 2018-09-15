@@ -107,7 +107,7 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
         //设置Ajax异步处理控制器即启用Ajax支持
         wc.setAjaxController(new NicelyResynchronizingAjaxController());
         //设置超时时间
-        wc.getOptions().setTimeout(20000);
+        //wc.getOptions().setTimeout(20000);
         //不跟踪抓取
         wc.getOptions().setDoNotTrackEnabled(false);
         //启动客户端重定向
@@ -593,7 +593,7 @@ public class SiteTaskExtend_CollgationSite extends SiteTaskExtend{
         //url	url
         adminPunish.setUrl(map.get("sourceUrl")==null?"":map.get("sourceUrl"));
         //object_type	主体类型: 01-企业 02-个人
-        adminPunish.setObjectType("01");
+        adminPunish.setObjectType(map.get("enterpriseName").length()<6?"02":"01");
         //enterprise_name	企业名称
         adminPunish.setEnterpriseName(map.get("enterpriseName")==null?"": map.get("enterpriseName"));
         //enterprise_code1	统一社会信用代码--cfXdrShxym

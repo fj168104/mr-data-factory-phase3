@@ -8,6 +8,7 @@ import com.mr.framework.core.util.StrUtil;
 import com.mr.framework.ocr.OcrUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -248,6 +249,11 @@ public class BaiduOCRUtil {
         List<String> resultList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {//最多进行5次尝试识别该图片内容
             try {
+                String fPath = filePath.toUpperCase().trim();
+                if (!fPath.endsWith(".JPG") && !fPath.endsWith(".PNG") && !fPath.endsWith(".BMP") && !fPath.endsWith(".JPEG")) {
+                    log.warn("[百度OCR]不支持的图片格式，目前支持jpg,jpeg,png,bmp图片格式。filePath={}", fPath);
+                    break;
+                }
                 //访问通用OCR识别，获取结果
                 String result = aipOcr.basicGeneral(filePath, options).toString(2);
                 log.debug(result);
@@ -464,11 +470,11 @@ public class BaiduOCRUtil {
             return "";
         }
         //将pdf转换为图片
-        List<File> pngList = pdf2image(filePath + File.separator + attachmentName, false);
+        List<File> pngList = pdf2image(filePath, attachmentName, false);
         //解析image
         StringBuilder sbs = new StringBuilder();
         for (File f : pngList) {
-            sbs.append(getTextStrFromImageFile(f.getAbsolutePath(), separator));//调用OCR
+            sbs.append(getTextStrFromImageFile(f.getPath(), separator));//调用OCR
             //FileUtil.del(f);//删除png文件
         }
         return sbs.toString();
@@ -477,20 +483,22 @@ public class BaiduOCRUtil {
     /**
      * PDF转换成图片
      *
-     * @param pdfName    PDF文件(绝对路径)
+     * @param pdfPath    PDF文件路径
+     * @param pdfName    PDF文件
      * @param needDelete 转换完成后，是否需要删除PDF原文件
      * @return pngList 转换后的png格式文件列表
      */
-    public static List<File> pdf2image(String pdfName, boolean needDelete) {
+    public static List<File> pdf2image(String pdfPath, String pdfName, boolean needDelete) {
         List<File> pngList = new ArrayList<>();
-        File file = new File(pdfName);
+        File file = new File(pdfPath + File.separator + pdfName);
+        PDDocument doc = null;
         try {
-            PDDocument doc = PDDocument.load(file);
+            doc = PDDocument.load(file);
             PDFRenderer renderer = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
             for (int i = 0; i < pageCount; ++i) {
                 BufferedImage image = renderer.renderImageWithDPI(i, 96.0F);//读取pdf
-                File pngFile = new File(file.getParentFile(), i + ".png");
+                File pngFile = new File(pdfPath, i + ".png");
                 ImageIO.write(image, "PNG", pngFile);//写png文件
                 pngList.add(pngFile);
             }
@@ -500,6 +508,8 @@ public class BaiduOCRUtil {
             doc.close();
         } catch (IOException e) {
             log.warn("convert pdf to image failed...", e);
+        } finally {
+            IOUtils.closeQuietly(doc);
         }
         return pngList;
     }
@@ -527,19 +537,13 @@ public class BaiduOCRUtil {
         File dirFile = new File(filePath + File.separator + dirs[0]);
         FileUtil.mkdir(dirFile);
         FileUtil.copy(entirePathName, dirFile + File.separator + attachmentName, true);
-        ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
+        List<String> jpgList = ImageForematConvert.tif2Jpg(dirFile + File.separator + attachmentName);
         FileUtil.del(dirFile + File.separator + attachmentName);
 
         //ocr 识别 jpg
-        File testDataDir = new File(dirFile.getAbsolutePath());
-        //listFiles()方法是返回某个目录下所有文件和目录的绝对路径，返回的是File数组
-        File[] files = testDataDir.listFiles();
-        int imgCount = files.length;
-//		log.info("tessdata目录下共有 " + imgCount + " 个文件/文件夹");
-        //解析image
         StringBuilder sbs = new StringBuilder();
-        for (int i = imgCount - 1; i >= 0; i--) {
-            sbs.append(getTextStrFromImageFile(files[i].getAbsolutePath(), separator));
+        for (String jpg : jpgList) {
+            sbs.append(getTextStrFromImageFile(jpg, separator));
         }
         //删除文件夹 dirName
         FileUtil.del(dirFile);

@@ -77,4 +77,9 @@
   <select id="selectCountByUniqueKey" parameterType="java.lang.String" resultType="Integer">
     select count(1) from admin_punish where source=#{source} and subject=#{subject} and unique_key=#{uniqueKey}
   </select>
+
+  <!--查询库中指定URL的数据量-->
+  <select id="selectCountByUrl" parameterType="java.lang.String" resultType="Integer">
+    select count(1) from admin_punish where url = #{url}
+  </select>
 </mapper>
