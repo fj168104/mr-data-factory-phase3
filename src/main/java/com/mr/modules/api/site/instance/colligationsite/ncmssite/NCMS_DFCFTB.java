@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -38,6 +39,14 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component("ncms_dfcftb")
 public class NCMS_DFCFTB extends SiteTaskExtend_CollgationSite{
+    //固定代理属性配置
+    @Value("${proxyfixed.flag}")
+    private boolean fixedflag;
+    @Value("${proxyfixed.ip}")
+    private String fixedIP;
+    @Value("${proxyfixed.port}")
+    private int fixedPort;
+
     @Autowired
     OCRUtil ocrUtil;
     @Autowired
@@ -307,7 +316,7 @@ public class NCMS_DFCFTB extends SiteTaskExtend_CollgationSite{
 
     }
 
-    public static WebClient createWebListClient(String ip, String port){
+    public  WebClient createWebListClient(String ip, String port){
         WebClient wc =  null;
         if ("".equals(ip) || "".equals(port)||ip==null||port==null) {
             wc = new WebClient(BrowserVersion.CHROME);
@@ -316,6 +325,12 @@ public class NCMS_DFCFTB extends SiteTaskExtend_CollgationSite{
             //获取代理对象
             wc = new WebClient(BrowserVersion.CHROME, ip,Integer.valueOf(port));
             log.info("通过代理进行处理···");
+        }
+        if(fixedflag==true){
+            log.info("系统通过固定代理IP进行处理···IP：{}，PORT：{}",fixedIP,fixedPort);
+            ProxyConfig proxyConfig = wc.getOptions().getProxyConfig();
+            proxyConfig.setProxyHost(fixedIP);
+            proxyConfig.setProxyPort(fixedPort);
         }
         //设置浏览器版本
         //是否使用不安全的SSL
@@ -348,7 +363,7 @@ public class NCMS_DFCFTB extends SiteTaskExtend_CollgationSite{
     }
 
 
-    public static WebClient createWebDetailClient(String ip, String port){
+    public  WebClient createWebDetailClient(String ip, String port){
         WebClient wc =  null;
         if ("".equals(ip) || "".equals(port)||ip==null||port==null) {
             wc = new WebClient(BrowserVersion.CHROME);
@@ -358,7 +373,12 @@ public class NCMS_DFCFTB extends SiteTaskExtend_CollgationSite{
             wc = new WebClient(BrowserVersion.CHROME, ip,Integer.valueOf(port));
             log.info("通过代理进行处理···");
         }
-
+        if(fixedflag==true){
+            log.info("系统通过固定代理IP进行处理···IP：{}，PORT：{}",fixedIP,fixedPort);
+            ProxyConfig proxyConfig = wc.getOptions().getProxyConfig();
+            proxyConfig.setProxyHost(fixedIP);
+            proxyConfig.setProxyPort(fixedPort);
+        }
         //设置浏览器版本
         //是否使用不安全的SSL
         wc.getOptions().setUseInsecureSSL(true);

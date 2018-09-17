@@ -3,12 +3,15 @@ package com.mr.modules.api.site.instance.colligationsite.ncmssite;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.mr.common.OCRUtil;
+import com.mr.modules.api.mapper.DiscreditBlacklistMapper;
 import com.mr.modules.api.model.AdminPunish;
+import com.mr.modules.api.model.DiscreditBlacklist;
 import com.mr.modules.api.model.ScrapyData;
 import com.mr.modules.api.site.SiteTaskExtend_CollgationSite;
 import com.mr.modules.api.site.instance.colligationsite.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +30,8 @@ import java.util.List;
 @Component("ncms_blacklist")
 @Scope("prototype")
 public class NCMS_BlackList extends SiteTaskExtend_CollgationSite {
-
+    @Autowired
+    DiscreditBlacklistMapper discreditBlacklistMapper;
     private String source = "全国建筑市场监管公共服务平台";
     private String subject = "黑名单记录";
     @Override
@@ -65,20 +69,20 @@ public class NCMS_BlackList extends SiteTaskExtend_CollgationSite {
                 judgeAuth = ((HtmlTableCell)tdList.get(2)).getTextContent();
                 judgeDate = ((HtmlTableCell)tdList.get(3)).getTextContent();
 
-                AdminPunish adminPunish = new AdminPunish();
-                adminPunish.setSource(source);
-                adminPunish.setSubject(subject);
-                adminPunish.setUniqueKey(mainUrl+"@"+entName+"@"+k+"@"+judgeDate);
-                adminPunish.setUrl(mainUrl);
-                adminPunish.setObjectType("01");
-                adminPunish.setEnterpriseName(entName);
-                adminPunish.setJudgeAuth(judgeAuth);
-                adminPunish.setJudgeDate(judgeDate);
-                adminPunish.setJudgeNo(judgeNo);
+                DiscreditBlacklist discreditBlacklist = new DiscreditBlacklist();
+                discreditBlacklist.setSource(source);
+                discreditBlacklist.setSubject(subject);
+                discreditBlacklist.setUniqueKey(mainUrl+"@"+entName+"@"+k+"@"+judgeDate);
+                discreditBlacklist.setUrl(mainUrl);
+                discreditBlacklist.setObjectType("01");
+                discreditBlacklist.setEnterpriseName(entName);
+                discreditBlacklist.setJudgeAuth(judgeAuth);
+                discreditBlacklist.setJudgeDate(judgeDate);
+                discreditBlacklist.setJudgeNo(judgeNo);
 
                 //数据入库
-                if(adminPunishMapper.selectByUrl(mainUrl,entName,null,judgeNo,judgeAuth).size()==0){
-                    adminPunishMapper.insert(adminPunish);
+                if(discreditBlacklistMapper.selectByUrl(mainUrl,entName,null,judgeNo,judgeAuth).size()==0){
+                    discreditBlacklistMapper.insert(discreditBlacklist);
                 }
             }
 
