@@ -123,6 +123,7 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 								//创建对象
 								ScrapyData scrapyData = new ScrapyData();
 								scrapyData.setUrl(href);
+								scrapyData.setTitle(desp);
 								scrapyData.setSource(source);
 								scrapyData.setHashKey(pFilePath);
 								scrapyData.setCreatedAt(new Date());
@@ -208,8 +209,11 @@ public class MIIT_BGT extends SiteTaskExtend_CollgationSite {
 
 										productionQuality.setPublishDate(publishDate);
 										productionQuality.setSource(source);
+										productionQuality.setTitle(desp);
 										saveProductionQualityOne(productionQuality, false);
 									}
+								}else {
+									scrapyDataMapper.deleteAllByUrl(scrapyData.getUrl());
 								}
 
 							}

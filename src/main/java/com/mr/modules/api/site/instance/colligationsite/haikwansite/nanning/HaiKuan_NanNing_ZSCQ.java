@@ -155,14 +155,20 @@ public class HaiKuan_NanNing_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan 
                     adminPunish.setObjectType("01");
                 }
                 if(strArr.length>=2&&strArr[1].length()<=6&& strArr[0].contains("当事人")&&StrUtil.isEmpty(adminPunish.getPersonName())){
-                    adminPunish.setPersonName(strArr[1]);
+                    adminPunish.setPersonName(StrUtil.isEmpty(strArr[1])?null:strArr[1]
+							.replace("营业执照","")
+							.replace("统一社会信用代码","")
+							.replace("身份证",""));
                     adminPunish.setObjectType("02");
                 }
                 if(strArr.length>=2&&(strArr[0].contains("证件号码")||strArr[0].contains("信用代码")||strArr[0].contains("营业执照"))){
                     adminPunish.setEnterpriseCode1(strArr[1]);
                 }
                 if(strArr.length>=2&&strArr[0].contains("代表人")){
-                    adminPunish.setPersonName(strArr[1]);
+					adminPunish.setPersonName(StrUtil.isEmpty(strArr[1])?null:strArr[1]
+							.replace("营业执照","")
+							.replace("统一社会信用代码","")
+							.replace("身份证",""));
                 }
                 if (strArr.length >= 2 && StrUtil.isEmpty(adminPunish.getJudgeNo()) && strArr[0].contains("发布主题")
                         && strArr[1].contains("（") && strArr[1].contains("）")){

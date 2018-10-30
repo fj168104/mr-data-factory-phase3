@@ -84,7 +84,7 @@ public class BONU_HuBei extends SiteTaskExtend_CollgationSite {
                 }
             }
             AdminPunish adminPunish = new AdminPunish();
-            adminPunish.setSource("湖北省统计局");
+            adminPunish.setSource("信用中国（湖北）");
             adminPunish.setSubject("统计上严重失信企业信息");
             adminPunish.setUniqueKey(reqUrl+"@"+entName+"@"+i+"@"+publishDate);
             adminPunish.setUrl(reqUrl);
@@ -119,7 +119,7 @@ public class BONU_HuBei extends SiteTaskExtend_CollgationSite {
         scrapyData.setHashKey(hashKey);
         scrapyData.setHtml(html);
         scrapyData.setText(text);
-        scrapyData.setSource("湖北省统计局");
+        scrapyData.setSource("信用中国（湖北）");
         scrapyData.setFields("source,subject,url,enterprise_name,publish_date/punishDate,judge_no,title");
         if(scrapyDataMapper.selectCountByUrl(url)==0){
             scrapyDataMapper.insert(scrapyData);

@@ -26,13 +26,16 @@ import java.util.Map;
 @Scope("prototype")
 @Component("haikuan_shantou_zswg")
 public class HaiKuan_ShanTou_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
+
+	private String source = "汕头海关";
+	private String subject = "汕头海关走私违规行政处罚";
+
 	@Autowired
 	SiteParams siteParams;
 	@Override
 	protected String execute() throws Throwable {
 		String ip = "";
 		String port = "";
-		String source = "汕头海关走私违规行政处罚";
 		String area = "shantou";//区域为：汕头
 		String baseUrl = "http://shantou.customs.gov.cn";
 		String url = "http://shantou.customs.gov.cn/shantou_customs/596193/596226/596228/596230/index.html";
@@ -75,8 +78,8 @@ public class HaiKuan_ShanTou_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
 		adminPunish.setPublishDate(publishDate);
 		adminPunish.setUpdatedAt(new Date());
 		adminPunish.setCreatedAt(new Date());
-		adminPunish.setSubject("汕头海关走私违规行政处罚");
-		adminPunish.setSource("汕头海关");
+		adminPunish.setSubject(subject);
+		adminPunish.setSource(source);
 
 		adminPunish.setPunishReason(text);
 

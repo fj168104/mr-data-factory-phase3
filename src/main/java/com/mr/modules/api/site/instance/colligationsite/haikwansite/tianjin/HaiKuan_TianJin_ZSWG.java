@@ -27,13 +27,18 @@ import java.util.Map;
 @Scope("prototype")
 @Component("haikuan_tianjin_zswg")
 public class HaiKuan_TianJin_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan {
+
+    private String source = "天津海关";
+    private String subject = "天津海关走私违规行政处罚";
+    private String judgeAuth = "天津海关";
+
     @Autowired
     SiteParams siteParams;
     @Override
     protected String execute() throws Throwable {
         String ip = "";
         String port = "";
-        String source = "天津海关走私违规行政处罚";
+
         String area = "tianjin";//区域为：天津
         String baseUrl = "http://tianjin.customs.gov.cn";
         String url = "http://tianjin.customs.gov.cn/tianjin_customs/427875/427916/427918/427920/2fa9bddc-1.html";
@@ -71,8 +76,8 @@ public class HaiKuan_TianJin_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
         adminPunish.setPublishDate(publishDate);
         adminPunish.setUpdatedAt(new Date());
         adminPunish.setCreatedAt(new Date());
-        adminPunish.setSubject("天津海关走私违规行政处罚");
-        adminPunish.setSource("天津海关");
+        adminPunish.setSubject(subject);
+        adminPunish.setSource(source);
 
         adminPunish.setPunishReason(text);
         adminPunish.setJudgeAuth("中华人民共和国天津海关");

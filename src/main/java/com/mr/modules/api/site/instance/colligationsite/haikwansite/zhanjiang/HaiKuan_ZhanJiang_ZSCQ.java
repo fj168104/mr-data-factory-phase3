@@ -27,6 +27,10 @@ import java.util.Map;
 @Scope("prototype")
 @Component("haikuan_zhanjiang_zscq")
 public class HaiKuan_ZhanJiang_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWan {
+
+	private String source = "湛江海关";
+	private String subject = "湛江海关知识产权行政处罚";
+
 	@Autowired
 	private SiteParams siteParams;
 	@Autowired
@@ -36,7 +40,6 @@ public class HaiKuan_ZhanJiang_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWa
 	protected String execute() throws Throwable {
 		String ip = "";
 		String port = "";
-		String source = "湛江海关知识产权行政处罚";
 		String area = "zhanjiang";//区域为：湛江
 		String baseUrl = "http://zhanjiang.customs.gov.cn";
 		String url = "http://zhanjiang.customs.gov.cn/zhanjiang_customs/534855/534876/534878/534879/index.html";
@@ -77,8 +80,8 @@ public class HaiKuan_ZhanJiang_ZSCQ extends SiteTaskExtend_CollgationSite_HaiKWa
 		adminPunish.setPublishDate(publishDate);
 		adminPunish.setUpdatedAt(new Date());
 		adminPunish.setCreatedAt(new Date());
-		adminPunish.setSubject("湛江海关知识产权行政处罚");
-		adminPunish.setSource("湛江海关");
+		adminPunish.setSubject(subject);
+		adminPunish.setSource(source);
 
 		adminPunish.setPunishReason(text);
 		adminPunish.setJudgeAuth("中华人民共和国湛江海关");

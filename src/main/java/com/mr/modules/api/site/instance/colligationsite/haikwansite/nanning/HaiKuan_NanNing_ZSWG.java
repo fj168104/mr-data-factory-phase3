@@ -129,9 +129,9 @@ public class HaiKuan_NanNing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
 		String bodyText = "";
 		try {
 			if(attachmentName.endsWith("tif")){
-				bodyText = BaiduOCRUtil.getTextStrFromTIFFile(filePath, attachmentName, "$");
+				bodyText = BaiduOCRUtil.getTextStrFromTIFFile(filePath, attachmentName);
 			}else {
-				bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName, "$");
+				bodyText = BaiduOCRUtil.getTextStrFromImageFile(filePath + File.separator + attachmentName);
 			}
 
 		} catch (Exception e) {
@@ -179,7 +179,7 @@ public class HaiKuan_NanNing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
 		text = text.replace("，当导人：","，当事人");
 		text = text.replace("，当手人：","，当事人");
 
-		String[] textArr = text.split("$");
+		String[] textArr = text.split(" ");
 		adminPunish.setPunishReason(text);
 		adminPunish.setJudgeAuth("中华人民共和国南宁海关");
 		for(String str : textArr){
@@ -190,14 +190,20 @@ public class HaiKuan_NanNing_ZSWG extends SiteTaskExtend_CollgationSite_HaiKWan 
 					adminPunish.setObjectType("01");
 				}
 				if(strArr.length>=2&&strArr[1].length()<=6&& strArr[0].contains("当事人")&&StrUtil.isEmpty(adminPunish.getPersonName())){
-					adminPunish.setPersonName(strArr[1]);
+					adminPunish.setPersonName(StrUtil.isEmpty(strArr[1])?null:strArr[1]
+							.replace("营业执照","")
+							.replace("统一社会信用代码","")
+							.replace("身份证",""));
 					adminPunish.setObjectType("02");
 				}
 				if(strArr.length>=2&&(strArr[0].contains("证件号码")||strArr[0].contains("信用代码")||strArr[0].contains("营业执照"))){
 					adminPunish.setEnterpriseCode1(strArr[1]);
 				}
 				if(strArr.length>=2&&strArr[0].contains("代表人")){
-					adminPunish.setPersonName(strArr[1]);
+					adminPunish.setPersonName(StrUtil.isEmpty(strArr[1])?null:strArr[1]
+							.replace("营业执照","")
+							.replace("统一社会信用代码","")
+							.replace("身份证",""));
 				}
 				if (strArr.length >= 2 && StrUtil.isEmpty(adminPunish.getJudgeNo()) && strArr[0].contains("发布主题")
 						&& strArr[1].contains("（") && strArr[1].contains("）")){
